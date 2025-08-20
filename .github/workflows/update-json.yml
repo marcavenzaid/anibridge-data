@@ -43,3 +43,5 @@ jobs:
           git add affiliate_products.json
           git commit -m "Auto-update affiliate_products.json from Google Sheets" || echo "No changes to commit"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
