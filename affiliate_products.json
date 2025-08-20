@@ -1,5 +1,17 @@
 [
   {
+    "name": "Sample Product School Girl",
+    "slug": "sample-product-school-girl",
+    "price": 360,
+    "affiliateLink": "https://example.com/product-id7?ref=affiliateId",
+    "description": "School girl anime figurine ",
+    "tempImage": {
+      "fileId": "68a596aefc8483f0a34fbad0",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a596aefc8483f0a34fbad0_sample%20product%20school%20girl.png",
+      "alt": null
+    }
+  },
+  {
     "name": "Sample Product Mahou Shoujo",
     "slug": "sample-product-mahou-shoujo",
     "price": 250,
