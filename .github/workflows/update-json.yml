@@ -48,7 +48,7 @@ jobs:
               tempImage: i.fieldData['temp-image']
             }));
 
-            fs.writeFileSync('data.json', JSON.stringify(simplified, null, 2));
+            fs.writeFileSync('affiliate_products.json', JSON.stringify(simplified, null, 2));
           })();
           "
         env:
@@ -58,8 +58,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json
-          git commit -m "Auto-update data.json from Webflow CMS" || echo "No changes to commit"
+          git add affiliate_products.json
+          git commit -m "Auto-update affiliate_products.json from Webflow CMS" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
