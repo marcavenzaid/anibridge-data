@@ -2,7 +2,7 @@ name: Export Webflow CMS to JSON
 
 on:
   schedule:
-    - cron: "0 * * * *"     # every 1 hour
+    - cron: "0 0 * * *"     # every day at 00:00 UTC
   workflow_dispatch:        # allow manual run
 
 jobs:
