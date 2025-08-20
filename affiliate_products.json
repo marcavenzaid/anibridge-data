@@ -1,5 +1,17 @@
 [
   {
+    "name": "Sample Product Ship Girl",
+    "slug": "sample-product-ship-girl",
+    "price": 234,
+    "affiliateLink": "https://example.com/product-id7?ref=affiliateId",
+    "description": "Ship girl anime figurine",
+    "tempImage": {
+      "fileId": "68a5a92057d5917e4190b2a7",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a5a92057d5917e4190b2a7_sample%20product%20ship%20girl.png",
+      "alt": null
+    }
+  },
+  {
     "name": "Sample Product School Girl",
     "slug": "sample-product-school-girl",
     "price": 360,
