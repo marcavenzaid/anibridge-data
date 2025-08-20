@@ -28,7 +28,7 @@ jobs:
             while (true) {
               const res = await fetch(\`\${url}?offset=\${offset}&limit=\${limit}\`, {
                 headers: {
-                  'Authorization': 'Bearer ${process.env.WEBFLOW_API_SITE_TOKEN}',
+                  'Authorization': 'Bearer ' + process.env.WEBFLOW_API_SITE_TOKEN,
                   'accept': 'application/json'
                 }
               });
