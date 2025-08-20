@@ -1,0 +1,45 @@
+name: Update JSON from Google Sheets
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes
+  workflow_dispatch:          # allow manual run
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Fetch Google Sheets CSV
+      - name: Download Google Sheet CSV
+        run: |
+          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7_DWCG48gxbFjoKIpU1YF5kgI30edtOmzjTUt8yIIVZ7-nK5hkdhZMJuAH70tlkD2Ovg2c1wWbG9t/pub?output=csv" -o sheet.csv
+
+      # Convert CSV to JSON
+      - name: Convert CSV to JSON
+        run: |
+          node -e "
+          const fs = require('fs');
+          const csv = fs.readFileSync('sheet.csv', 'utf8').trim().split('\n');
+          const headers = csv[0].split(',');
+          const rows = csv.slice(1).map(r => {
+            const cols = r.split(',');
+            let obj = {};
+            headers.forEach((h,i) => obj[h] = cols[i]);
+            return obj;
+          });
+          fs.writeFileSync('data.json', JSON.stringify(rows, null, 2));
+          "
+
+      # Commit changes
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "Auto-update data.json from Google Sheets" || echo "No changes to commit"
+          git push
