@@ -2,7 +2,7 @@ name: Export Webflow CMS to JSON
 
 on:
   schedule:
-    - cron: "0 * * * *"     # every 1 hour
+    - cron: "0 0 * * *"     # every day at 00:00 UTC
   workflow_dispatch:        # allow manual run
 
 jobs:
@@ -17,7 +17,6 @@ jobs:
         run: |
           node -e "
           const fs = require('fs');
-          const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
           (async () => {
             const url = 'https://api.webflow.com/v2/collections/68933f50454777c4b8afb247/items';
@@ -28,7 +27,7 @@ jobs:
             while (true) {
               const res = await fetch(\`\${url}?offset=\${offset}&limit=\${limit}\`, {
                 headers: {
-                  'Authorization': 'Bearer ${process.env.WEBFLOW_API_SITE_TOKEN}',
+                  'Authorization': 'Bearer ' + process.env.WEBFLOW_API_SITE_TOKEN,
                   'accept': 'application/json'
                 }
               });
@@ -49,7 +48,7 @@ jobs:
               tempImage: i.fieldData['temp-image']
             }));
 
-            fs.writeFileSync('data.json', JSON.stringify(simplified, null, 2));
+            fs.writeFileSync('affiliate_products.json', JSON.stringify(simplified, null, 2));
           })();
           "
         env:
@@ -59,8 +58,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json
-          git commit -m "Auto-update data.json from Webflow CMS" || echo "No changes to commit"
+          git add affiliate_products.json
+          git commit -m "Auto-update affiliate_products.json from Webflow CMS" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
