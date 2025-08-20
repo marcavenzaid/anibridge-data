@@ -17,7 +17,6 @@ jobs:
         run: |
           node -e "
           const fs = require('fs');
-          const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
           (async () => {
             const url = 'https://api.webflow.com/v2/collections/68933f50454777c4b8afb247/items';
