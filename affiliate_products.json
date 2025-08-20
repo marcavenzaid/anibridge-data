@@ -1,22 +1,98 @@
 [
   {
+    "name": "Sample Product Ship Girl",
+    "slug": "sample-product-ship-girl",
+    "price": 234,
+    "affiliateLink": "https://example.com/product-id7?ref=affiliateId",
+    "description": "Ship girl anime figurine",
+    "tempImage": {
+      "fileId": "68a5a92057d5917e4190b2a7",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a5a92057d5917e4190b2a7_sample%20product%20ship%20girl.png",
+      "alt": null
+    }
+  },
+  {
+    "name": "Sample Product School Girl",
+    "slug": "sample-product-school-girl",
+    "price": 360,
+    "affiliateLink": "https://example.com/product-id7?ref=affiliateId",
+    "description": "School girl anime figurine ",
+    "tempImage": {
+      "fileId": "68a596aefc8483f0a34fbad0",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a596aefc8483f0a34fbad0_sample%20product%20school%20girl.png",
+      "alt": null
+    }
+  },
+  {
+    "name": "Sample Product Mahou Shoujo",
+    "slug": "sample-product-mahou-shoujo",
+    "price": 250,
+    "affiliateLink": "https://example.com/product-id6?ref=affiliateId",
+    "description": "This is an anime figurine of a mahou shoujo.",
+    "tempImage": {
+      "fileId": "68a584fb57d5917e4182ee3c",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a584fb57d5917e4182ee3c_sample%20product%20mahou%20shoujo.png",
+      "alt": null
+    }
+  },
+  {
     "name": "Sample Product Succubus",
+    "slug": "sample-product-5",
+    "price": 500,
+    "affiliateLink": "https://example.com/product-id5?ref=affiliateId",
     "description": "This is an anime figurine of a succubus.",
-    "anime\r": "6896feee396c38f164dc9135\r"
+    "tempImage": {
+      "fileId": "68a56e14b3e49d59bdbe32c3",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a56e14b3e49d59bdbe32c3_sample%20product%20succubus.png",
+      "alt": null
+    }
+  },
+  {
+    "name": "Sample Product 4",
+    "slug": "sample-product-4",
+    "price": 140,
+    "affiliateLink": "https://example.com/product-id4?ref=affiliateId",
+    "description": "This is a sample description so that I can test how a long description would look like.",
+    "tempImage": {
+      "fileId": "689348512ec99b24ba6c3456",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/689348512ec99b24ba6c3456_sample_product_3_sm.png",
+      "alt": null
+    }
   },
   {
     "name": "Sample Product 3",
+    "slug": "sample-product-3",
+    "price": 699,
+    "affiliateLink": "https://example.com/product-id3?ref=affiliateId",
     "description": "Sample Description",
-    "anime\r": "6884315087ea7cc50adaf1aa\r"
+    "tempImage": {
+      "fileId": "689340b6449b0b548890bd99",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/689340b6449b0b548890bd99_sample_product_1.png",
+      "alt": null
+    }
   },
   {
     "name": "Sample Product 2",
+    "slug": "sample-product-2",
+    "price": 59.99,
+    "affiliateLink": "https://example.com/product-id2?ref=affiliateId",
     "description": "Sample Description",
-    "anime\r": "688421bcc5eae8dece5a4287\r"
+    "tempImage": {
+      "fileId": "68934098804bf016b045235a",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68934098804bf016b045235a_sample_product_2.png",
+      "alt": null
+    }
   },
   {
     "name": "Sample Product 1",
+    "slug": "sample-product-1",
+    "price": 100,
+    "affiliateLink": "https://example.com/product-id1?ref=affiliateId",
     "description": "Sample Description",
-    "anime\r": "6884315087ea7cc50adaf1aa"
+    "tempImage": {
+      "fileId": "68948e2d4e85bfe8eb3f7e68",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68948e2d4e85bfe8eb3f7e68_sample_product_4.png",
+      "alt": null
+    }
   }
 ]
