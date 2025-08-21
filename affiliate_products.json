@@ -1,13 +1,25 @@
 [
   {
+    "name": "Sample Product Mahou Shoujo 2",
+    "slug": "sample-product-mahou-shoujo-2",
+    "price": 321,
+    "affiliateLink": "https://example.com/product-id9?ref=affiliateId",
+    "description": "Mahou shoujo anime figurine.",
+    "tempImage": {
+      "fileId": "68a5b8aa07e780f41458d66d",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a5b8aa07e780f41458d66d_sample%20product%20mahou%20shoujo%202.png",
+      "alt": null
+    }
+  },
+  {
     "name": "Sample Product Ship Girl",
     "slug": "sample-product-ship-girl",
     "price": 234,
-    "affiliateLink": "https://example.com/product-id7?ref=affiliateId",
+    "affiliateLink": "https://example.com/product-id8?ref=affiliateId",
     "description": "Ship girl anime figurine",
     "tempImage": {
-      "fileId": "68a5a92057d5917e4190b2a7",
-      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a5a92057d5917e4190b2a7_sample%20product%20ship%20girl.png",
+      "fileId": "68a5b927072413a21bd00663",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a5b927072413a21bd00663_sample%20product%20ship%20girl.png",
       "alt": null
     }
   },
