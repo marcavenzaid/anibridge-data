@@ -1,6 +1,12 @@
 # AniBridge Data
-
 This repository automatically exports data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
+
+## About This Project
+This is a solution to the problem I faced when developing AniBridge in Webflow, where there is no way to create a search functionality for the shop that contains the affiliate products.
+
+Webflow offers a site search function, but it is for the entire website. 
+
+So, I decided to create this solution, which automatically exports the affiliate products data from the AniBridge Webflow CMS and makes it available as a JSON file, which can be fetched and used for searching products in the AniBridge shop.
 
 ## Live JSON URL
 The latest export is always available here:
@@ -30,3 +36,4 @@ async function loadProducts() {
   console.log(products);
 }
 ```
+
