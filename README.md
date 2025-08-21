@@ -2,14 +2,13 @@
 This repository automatically exports data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
 
 ## About This Project
-This is a solution to the problem I faced when developing AniBridge in Webflow, where there is no way to create a search functionality for the shop that contains the affiliate products.
+This is a solution to the problem I faced when developing AniBridge in Webflow. I needed a way to add a shop search functionality.
+Webflow’s built-in search is a site search (shows results of all the text in the website), not for a single CMS collection. I am also already using the built-in search for searching other things in the website. So, it is already configured for that, and can't be configured for the shop search.
 
-Webflow offers a site search function, but it is for the entire website. 
-
-So, I decided to create this solution, which automatically exports the affiliate products data from the AniBridge Webflow CMS and makes it available as a JSON file, which can be fetched and used for searching products in the AniBridge shop.
+This repository solves that problem by exporting the affiliate products CMS data from Webflow into a static JSON file. That JSON can then be fetched directly on the AniBridge site and used for fast client-side search.
 
 ## Live JSON URL
-The latest export is always available here: [affiliate_products.json](https://anibridge-data.vercel.app/affiliate_products.json)
+The latest export is always available here: [affiliate_products.json](https://marcavenzaid.github.io/anibridge-data/affiliate_products.json)
 
 ## How It Works
 - A **GitHub Actions workflow** runs once every 24 hours (or manually).
@@ -18,18 +17,18 @@ The latest export is always available here: [affiliate_products.json](https://an
 	2. Extracts the fields we care about (`name`, `slug`, `price`, etc).
 	3. Saves them into `affiliate_products.json`.
 	4. Commits the JSON back to this repo.
-- Each commit automatically triggers a **Vercel deploy**, making the JSON available publicly here: [affiliate_products.json](https://anibridge-data.vercel.app/affiliate_products.json).
+- GitHub Pages serves the JSON publicly at the URL above.
 
 ## Tech Stack
-- Webflow CMS API: Source of the data.
+- Webflow CMS API: Data source.
 - GitHub Actions: Automates the export and commit process.
-- Vercel: Hosts the static JSON file.
+- GitHub Pages: Hosts the static JSON file.
 
 ## Usage
 On the AniBridge frontend (or anywhere else), you can fetch the JSON like this:
 ```javascript
 async function loadProducts() {
-  const res = await fetch("https://anibridge-data.vercel.app/affiliate_products.json");
+  const res = await fetch("https://marcavenzaid.github.io/anibridge-data/affiliate_products.json");
   const products = await res.json();
   console.log(products);
 }
