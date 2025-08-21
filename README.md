@@ -9,17 +9,15 @@ Webflow offers a site search function, but it is for the entire website.
 So, I decided to create this solution, which automatically exports the affiliate products data from the AniBridge Webflow CMS and makes it available as a JSON file, which can be fetched and used for searching products in the AniBridge shop.
 
 ## Live JSON URL
-The latest export is always available here:
-
-[affiliate_products.json](https://anibridge-data.vercel.app/affiliate_products.json)
+The latest export is always available here: [affiliate_products.json](https://anibridge-data.vercel.app/affiliate_products.json)
 
 ## How It Works
 - A **GitHub Actions workflow** runs once every 24 hours (or manually).
 - The workflow:
-  1. Fetches CMS items from the AniBridge Webflow CMS via the Webflow API.
-  2. Extracts the fields we care about (`name`, `slug`, `price`, etc).
-  3. Saves them into `affiliate_products.json`.
-  4. Commits the JSON back to this repo.
+	1. Fetches CMS items from the AniBridge Webflow CMS via the Webflow API.
+	2. Extracts the fields we care about (`name`, `slug`, `price`, etc).
+	3. Saves them into `affiliate_products.json`.
+	4. Commits the JSON back to this repo.
 - Each commit automatically triggers a **Vercel deploy**, making the JSON available publicly here: [affiliate_products.json](https://anibridge-data.vercel.app/affiliate_products.json).
 
 ## Tech Stack
