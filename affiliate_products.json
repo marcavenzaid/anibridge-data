@@ -1,5 +1,17 @@
 [
   {
+    "name": "Sample Product Elegant",
+    "slug": "sample-product-elegant",
+    "price": 321,
+    "affiliateLink": "https://example.com/product-id10?ref=affiliateId",
+    "description": "Anime figurine of an elegant girl.",
+    "tempImage": {
+      "fileId": "68a70f43793fcbb34cbe6dab",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68a70f43793fcbb34cbe6dab_sample%20product%20elegant.png",
+      "alt": null
+    }
+  },
+  {
     "name": "Sample Product Mahou Shoujo 2",
     "slug": "sample-product-mahou-shoujo-2",
     "price": 321,
