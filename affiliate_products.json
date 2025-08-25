@@ -62,7 +62,7 @@
   {
     "name": "Sample Product Succubus",
     "slug": "sample-product-5",
-    "price": 500,
+    "price": 1000000,
     "affiliateLink": "https://example.com/product-id5?ref=affiliateId",
     "description": "This is an anime figurine of a succubus.",
     "tempImage": {
