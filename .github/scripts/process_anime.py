@@ -17,6 +17,8 @@ has_issues_ws = sheet.worksheet("has issues")
 
 added_titles = set(row['anime_title'] for row in added)
 to_add_titles = set()
+added_playlist_ids = set(row['youtube_playlist_id'] for row in added)
+to_add_playlist_ids = set()
 issues = []
 
 for row in to_add:
@@ -24,12 +26,12 @@ for row in to_add:
     playlist_id = row['youtube_playlist_id']
     thumb_url = row['thumbnail_image_url']
     note = ""
-    # Check for duplicates
-    if title in added_titles or title in to_add_titles:
-        note = "Duplicate anime_title"
+    # Check for duplicates using youtube_playlist_id
+    if playlist_id in added_playlist_ids or playlist_id in to_add_playlist_ids:
+        note = "Duplicate youtube_playlist_id"
         issues.append([title, playlist_id, thumb_url, note])
     else:
-        to_add_titles.add(title)
+        to_add_playlist_ids.add(playlist_id)
         # Fetch playlist info from YouTube
         try:
             yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
