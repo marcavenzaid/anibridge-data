@@ -3,6 +3,8 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from datetime import datetime, timezone
+
 
 # Authenticate Google Sheets
 creds_json = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
@@ -22,31 +24,35 @@ added_playlist_ids = set(row['youtube_playlist_id'] for row in added)
 to_add_playlist_ids = set()
 issues = []
 
-for row in to_add:
+to_add_ws = sheet.worksheet("to add")
+rows_to_delete = []
+
+for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
     title = row['anime_title']
     playlist_id = row['youtube_playlist_id']
     thumb_url = row['thumbnail_image_url']
+    date_added = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     note = ""
-    # Check for duplicates using youtube_playlist_id
     if playlist_id in added_playlist_ids or playlist_id in to_add_playlist_ids:
         note = "Duplicate youtube_playlist_id"
         issues.append([title, playlist_id, thumb_url, note])
     else:
         to_add_playlist_ids.add(playlist_id)
-        # Fetch playlist info from YouTube
         try:
             yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
             playlist = yt.playlists().list(part='snippet', id=playlist_id).execute()
             items = yt.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=5).execute()
-            # Add row to "added" sheet
-            added_ws.append_row([title, playlist_id, thumb_url])
-            print("append_row", title, playlist_id, thumb_url)
+            added_ws.append_row([title, playlist_id, thumb_url, date_added])
+            rows_to_delete.append(idx)
         except Exception as e:
             note = f"YouTube API error: {e}"
             issues.append([title, playlist_id, thumb_url, note])
+
+# Remove processed rows from "to add" sheet (delete from bottom to top to avoid shifting)
+for row_idx in sorted(rows_to_delete, reverse=True):
+    to_add_ws.delete_rows(row_idx)
 
 # Write issues to "has issues" sheet
 if issues:
     for issue in issues:
         has_issues_ws.append_row(issue)
-        print("append_row", issue)
