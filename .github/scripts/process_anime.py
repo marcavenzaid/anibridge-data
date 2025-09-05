@@ -14,6 +14,7 @@ sheet = gc.open_by_key(os.environ['GOOGLE_SHEET_ID'])
 to_add = sheet.worksheet("to add").get_all_records()
 added = sheet.worksheet("added").get_all_records()
 has_issues_ws = sheet.worksheet("has issues")
+added_ws = sheet.worksheet("added")
 
 added_titles = set(row['anime_title'] for row in added)
 to_add_titles = set()
@@ -37,14 +38,13 @@ for row in to_add:
             yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
             playlist = yt.playlists().list(part='snippet', id=playlist_id).execute()
             items = yt.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=5).execute()
-            # You can process playlist and items here as needed
+            # Add row to "added" sheet
+            added_ws.append_row([title, playlist_id, thumb_url])
         except Exception as e:
             note = f"YouTube API error: {e}"
             issues.append([title, playlist_id, thumb_url, note])
 
 # Write issues to "has issues" sheet
 if issues:
-    has_issues_ws.clear()
-    has_issues_ws.append_row(["anime_title", "youtube_playlist_id", "thumbnail_image_url", "note"])
     for issue in issues:
         has_issues_ws.append_row(issue)
