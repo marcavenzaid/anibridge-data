@@ -40,6 +40,7 @@ for row in to_add:
             items = yt.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=5).execute()
             # Add row to "added" sheet
             added_ws.append_row([title, playlist_id, thumb_url])
+            print("append_row", title, playlist_id, thumb_url)
         except Exception as e:
             note = f"YouTube API error: {e}"
             issues.append([title, playlist_id, thumb_url, note])
@@ -48,3 +49,4 @@ for row in to_add:
 if issues:
     for issue in issues:
         has_issues_ws.append_row(issue)
+        print("append_row", issue)
