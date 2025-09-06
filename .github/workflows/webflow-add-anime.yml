@@ -17,7 +17,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install gspread google-auth google-api-python-client
+          pip install gspread google-auth google-api-python-client webflow
 
       - name: Run anime processor
         env:
