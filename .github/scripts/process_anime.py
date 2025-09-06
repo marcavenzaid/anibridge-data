@@ -55,7 +55,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
         try:
             yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
             playlist = yt.playlists().list(
-                part='snippet,contentDetails', 
+                part='contentDetails,id,localizations,snippet,status', 
                 id=playlist_id
             ).execute()
             items = yt.playlistItems().list(
