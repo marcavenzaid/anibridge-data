@@ -36,6 +36,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
     if playlist_id in added_playlist_ids or playlist_id in to_add_playlist_ids:
         note = "Duplicate youtube_playlist_id"
         issues.append([title, playlist_id, thumb_url, note])
+        rows_to_delete.append(idx)  # Mark for deletion
     else:
         to_add_playlist_ids.add(playlist_id)
         try:
@@ -43,14 +44,17 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
             playlist = yt.playlists().list(part='snippet', id=playlist_id).execute()
             items = yt.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=5).execute()
             added_ws.append_row([title, playlist_id, thumb_url, date_added])
-            rows_to_delete.append(idx)
+            rows_to_delete.append(idx)  # Mark for deletion
         except Exception as e:
             note = f"YouTube API error: {e}"
             issues.append([title, playlist_id, thumb_url, note])
+            rows_to_delete.append(idx)  # Mark for deletion
 
-# Remove processed rows from "to add" sheet (delete from bottom to top to avoid shifting)
-for row_idx in sorted(rows_to_delete, reverse=True):
-    to_add_ws.delete_rows(row_idx)
+# Remove processed rows from "to add" sheet (clear each row)
+for row_idx in sorted(set(rows_to_delete), reverse=True):
+    # Assuming 3 columns: anime_title, youtube_playlist_id, thumbnail_image_url
+    to_add_ws.batch_clear([f"{row_idx}:{row_idx}"])
+
 
 # Write issues to "has issues" sheet
 if issues:
