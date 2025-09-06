@@ -67,7 +67,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
             data = {
                 "isArchived": False,
                 "isDraft": False,
-                "fields": {
+                "fieldData": {
                     "name": title,
                     "slug": simple_slug(title),
                     "thumbnail": thumb_url,
@@ -76,7 +76,9 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                 }
             }
             response = requests.post(webflow_url, headers=headers, json=data)
-            response.raise_for_status()
+            if not response.ok:
+                print("Webflow error:", response.status_code, response.text)
+                response.raise_for_status()
 
             # Create collection items for each video in the playlist
             VIDEO_COLLECTION_ID = "67ffcb961b77a49b301d4a26"
@@ -96,17 +98,20 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                 video_data = {
                     "isArchived": False,
                     "isDraft": False,
-                    "fields": {
+                    "fieldData": {
                         "name": snippet['title'],
                         "slug": simple_slug(snippet['title']),
                         "youtube-video-id": video_id,
-                        "youtube-video-url": video_url,
-                        "episode-position": episode_position,
+                        "youtube-video": video_url,
+                        "episode-order": episode_position,
                         "youtube-video-publish-date": published_at_utc
                     }
                 }
                 video_response = requests.post(video_webflow_url, headers=headers, json=video_data)
                 video_response.raise_for_status()
+                if not video_response.ok:
+                    print("Webflow error:", video_response.status_code, video_response.text)
+                    video_response.raise_for_status()
 
             added_ws.append_row([title, playlist_id, thumb_url, date_added])
             rows_to_clear.append(idx)  # Mark for clearing
