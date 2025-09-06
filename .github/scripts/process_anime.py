@@ -54,8 +54,14 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
         to_add_playlist_ids.add(playlist_id)
         try:
             yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
-            playlist = yt.playlists().list(part='snippet', id=playlist_id).execute()
-            items = yt.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=5).execute()
+            playlist = yt.playlists().list(
+                part='snippet,contentDetails', 
+                id=playlist_id
+            ).execute()
+            items = yt.playlistItems().list(
+                part='snippet,contentDetails', 
+                playlistId=playlist_id, 
+            ).execute()
             description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
             # Create Webflow collection item
