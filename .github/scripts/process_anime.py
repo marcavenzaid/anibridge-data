@@ -5,7 +5,8 @@ import requests
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from datetime import datetime, timezone
-
+import unicodedata
+import re
 
 # Authenticate Google Sheets
 creds_json = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
@@ -31,6 +32,14 @@ rows_to_clear = []
 WEBFLOW_COLLECTION_ID = "67fffeccd6749ed6ce46961b"
 WEBFLOW_API_SITE_TOKEN = os.environ["WEBFLOW_API_SITE_TOKEN"]  # Set this secret in GitHub
 
+def simple_slug(text: str) -> str:
+    text = unicodedata.normalize('NFD', text) # Normalize to NFD (decompose accented letters)
+    text = ''.join(c for c in text if unicodedata.category(c) != 'Mn') # Remove diacritics (accents)
+    text = text.lower() # Lowercase
+    text = re.sub(r'[^a-z0-9\s]', '', text) # Keep only a-z, 0-9, and spaces
+    text = text.strip().replace(' ', '_') # Trim and replace spaces with underscores
+    return text
+
 for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
     title = row['anime_title']
     playlist_id = row['youtube_playlist_id']
@@ -50,10 +59,9 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
             description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
             # Create Webflow collection item
-            webflow_url = f"https://api.webflow.com/collections/{WEBFLOW_COLLECTION_ID}/items"
+            webflow_url = f"https://api.webflow.com/v2/collections/{WEBFLOW_COLLECTION_ID}/items"
             headers = {
                 "Authorization": f"Bearer {WEBFLOW_API_SITE_TOKEN}",
-                "accept-version": "1.0.0",
                 "Content-Type": "application/json"
             }
             data = {
@@ -61,6 +69,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                 "isDraft": False,
                 "fields": {
                     "name": title,
+                    "slug": simple_slug(title),
                     "thumbnail": thumb_url,
                     "description": description,
                     "youtube-playlist-id": playlist_id
@@ -71,7 +80,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
 
             # Create collection items for each video in the playlist
             VIDEO_COLLECTION_ID = "67ffcb961b77a49b301d4a26"
-            video_webflow_url = f"https://api.webflow.com/collections/{VIDEO_COLLECTION_ID}/items"
+            video_webflow_url = f"https://api.webflow.com/v2/collections/{VIDEO_COLLECTION_ID}/items"
 
             for video in items.get('items', []):
                 snippet = video['snippet']
@@ -89,6 +98,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                     "isDraft": False,
                     "fields": {
                         "name": snippet['title'],
+                        "slug": simple_slug(snippet['title']),
                         "youtube-video-id": video_id,
                         "youtube-video-url": video_url,
                         "episode-position": episode_position,
