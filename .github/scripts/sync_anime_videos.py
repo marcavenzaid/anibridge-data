@@ -56,12 +56,21 @@ def fetch_animes():
 
 
 def fetch_youtube_playlist_items(playlist_id):
-  yt = build('youtube', 'v3', developerKey=YT_API_KEY)
-  yt_playlist_items = yt.playlistItems().list(
-    part='snippet,contentDetails',
-    playlistId=playlist_id
-  ).execute()
-  return yt_playlist_items.get('items', [])
+    yt = build('youtube', 'v3', developerKey=YT_API_KEY)
+    all_items = []
+    next_page_token = None
+    while True:
+        yt_playlist_items = yt.playlistItems().list(
+            part='snippet,contentDetails',
+            playlistId=playlist_id,
+            maxResults=50,
+            pageToken=next_page_token
+        ).execute()
+        all_items.extend(yt_playlist_items.get('items', []))
+        next_page_token = yt_playlist_items.get('nextPageToken')
+        if not next_page_token:
+            break
+    return all_items
 
 
 def add_anime_videos_collection_item(video_data):

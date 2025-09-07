@@ -74,6 +74,22 @@ def process():
         for issue in issues:
             has_issues_sheet.append_row(issue)
 
+def get_all_playlist_items(yt, playlist_id):
+    all_items = []
+    next_page_token = None
+    while True:
+        request = yt.playlistItems().list(
+            part='snippet,contentDetails',
+            playlistId=playlist_id,
+            maxResults=50, # 50 is the maximum number of results per page.
+            pageToken=next_page_token
+        )
+        response = request.execute()
+        all_items.extend(response.get('items', []))
+        next_page_token = response.get('nextPageToken')
+        if not next_page_token:
+            break
+    return {'items': all_items}
 
 def create_animes_collection_items(title, playlist_id, thumb_url, idx):
     try:
@@ -82,10 +98,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             part='contentDetails,id,localizations,snippet,status', 
             id=playlist_id
         ).execute()
-        yt_playlist_items = yt.playlistItems().list(
-            part='snippet,contentDetails', 
-            playlistId=playlist_id, 
-        ).execute()
+        yt_playlist_items = get_all_playlist_items(yt, playlist_id)
         description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
         data = {
