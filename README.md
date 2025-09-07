@@ -6,7 +6,7 @@ This repository contains Workflows to automate some processes for AniBridge.
 2. Webflow Add Anime - runs every day at 01:00 UTC
 3. Webflow Sync Anime Videos - runs every day at 02:00 UTC
 
-### Export Webflow CMS to JSON
+### Export Webflow CMS to JSON Workflow
 This workflow automatically exports data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
 
 This is a solution to the problem I faced when developing AniBridge in Webflow. I needed a way to add a shop search functionality.
@@ -36,7 +36,7 @@ async function loadProducts() {
 }
 ```
 
-### Webflow Add Anime
+### Webflow Add Anime Workflow
 This workflow reads the new anime entries in the anibridge-add-anime-sheet Google Sheet and automatically creates a Animes Collection items and Anime Videos Collection items in Webflow CMS.
 
 This way, only Google sheet input of anime title, youtube playlist id, and thumbnail image url are needed to add new anime to the website.
@@ -51,7 +51,7 @@ anibridge-add-anime-sheet: https://docs.google.com/spreadsheets/d/1C5sDE4ntv_-Jl
 	3. Fetches the details of the youtube playlist and the details of the videos in that playlist.
 	4. Create Animes Collection items and the corresponding Anime Videos Collection items.
 
-### Webflow Sync Anime Videos
+### Webflow Sync Anime Videos Workflow
 This workflow adds new videos added to the anime playlist that AniBridge already have in its CMS. This is for ongoing anime series so that the new episodes gets added to AniBridge automatically.
 
 #### How It Works
