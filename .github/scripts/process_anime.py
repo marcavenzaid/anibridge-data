@@ -85,7 +85,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
             item_id = None
             if response.ok:
                 resp_json = response.json()
-                item_id = resp_json["_id"]
+                item_id = resp_json["id"]
             else:
                 print("Webflow error:", response.status_code, response.text)
                 response.raise_for_status()
