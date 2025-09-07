@@ -58,8 +58,8 @@ def process():
         else:
             to_add_playlist_ids.add(playlist_id)
             
-            yt_playlist_items, new_animes_collection_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
-            create_anime_videos_collection_items(new_animes_collection_id, yt_playlist_items, title, playlist_id, thumb_url)
+            playlist_items, new_animes_collection_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
+            create_anime_videos_collection_items(new_animes_collection_id, playlist_items, title, playlist_id, thumb_url)
             
             added_sheet.append_row([title, playlist_id, thumb_url, date_added])
             rows_to_clear.append(idx)  # Mark rows that have been moved to another sheet for clearing.
