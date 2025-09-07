@@ -82,7 +82,11 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                 }
             }
             response = requests.post(webflow_url, headers=headers, json=data)
-            if not response.ok:
+            item_id = None
+            if response.ok:
+                resp_json = response.json()
+                item_id = resp_json["_id"]
+            else:
                 print("Webflow error:", response.status_code, response.text)
                 response.raise_for_status()
 
@@ -109,6 +113,7 @@ for idx, row in enumerate(to_add, start=2):  # start=2 because row 1 is header
                         "slug": simple_slug(snippet['title']),
                         "youtube-video-id": video_id,
                         "youtube-video": video_url,
+                        "anime-title-3": item_id,
                         "episode-order": episode_position,
                         "youtube-video-publish-date": published_at_utc
                     }
