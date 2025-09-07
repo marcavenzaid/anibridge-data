@@ -46,7 +46,7 @@ anibridge-add-anime-sheet: https://docs.google.com/spreadsheets/d/1C5sDE4ntv_-Jl
 #### How It Works
 - A **GitHub Actions workflow** runs once every 24 hours, at 01:00 UTC (or manually).
 - The workflow:
-	1. Fetches the entris in the anibridge-add-anime-sheet.
+	1. Fetches the entries in the anibridge-add-anime-sheet.
 	2. Check for duplicates and other issues, if there are, then move those entries to the "has issues" sheet.
 	3. Fetches the details of the youtube playlist and the details of the videos in that playlist.
 	4. Create Animes Collection items and the corresponding Anime Videos Collection items.
