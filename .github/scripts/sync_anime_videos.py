@@ -23,7 +23,8 @@ YT_API_KEY = os.environ['YOUTUBE_API_KEY']
 def sync_anime_videos():
   animes = fetch_animes()
   for anime in animes:
-    playlist_id = anime.get('youtube-playlist-id')
+    print(json.dumps(anime, indent=2))  # 👈 show the whole thing
+    playlist_id = anime['fieldData'].get('youtube-playlist-id')
     print(f"\nProcessing anime: {anime['fieldData'].get('name')} (id={anime['id']}), playlist={playlist_id}")
 
     if playlist_id:
