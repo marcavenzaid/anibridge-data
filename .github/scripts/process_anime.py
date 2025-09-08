@@ -101,12 +101,12 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
         yt_playlist_items = get_all_playlist_items(yt, playlist_id)
         description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
+        # No need to include slug, Webflow will auto-generate it.
         data = {
             "isArchived": False,
             "isDraft": False,
             "fieldData": {
                 "name": title,
-                "slug": simple_slug(title),
                 "thumbnail": thumb_url,
                 "description": description,
                 "youtube-playlist-id": playlist_id
@@ -164,16 +164,6 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
         except Exception as e:
             issues.append([title, playlist_id, thumb_url, f"Error processing video {video_id}: {e}"])
             continue
-
-
-def simple_slug(text: str) -> str:
-    text = unicodedata.normalize('NFD', text) # Normalize to NFD (decompose accented letters)
-    text = ''.join(c for c in text if unicodedata.category(c) != 'Mn') # Remove diacritics (accents)
-    text = text.lower() # Lowercase
-    text = re.sub(r'[^a-z0-9\s]', '', text) # Keep only a-z, 0-9, and spaces
-    text = re.sub(r'\s+', '-', text.strip())  # replace spaces with dashes
-    return text
-
 
 def main():
     process()
