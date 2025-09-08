@@ -143,12 +143,12 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
             dt = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
             published_at_utc = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+            # No need to include slug, Webflow will auto-generate it.
             video_data = {
                 "isArchived": False,
                 "isDraft": False,
                 "fieldData": {
                     "name": snippet['title'],
-                    "slug": simple_slug(snippet['title']),
                     "youtube-video-id": video_id,
                     "youtube-video": video_url,
                     "anime-title-3": item_id,

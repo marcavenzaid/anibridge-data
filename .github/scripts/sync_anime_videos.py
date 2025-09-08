@@ -41,12 +41,13 @@ def sync_anime_videos():
       for video in yt_videos:
         video_id = video['contentDetails']['videoId']
         if video_id not in existing_video_ids:
+
+          # No need to include slug, Webflow will auto-generate it.
           video_data = {
             "isArchived": False,
             "isDraft": False,
             "fieldData": {
               "name": video['snippet']['title'],
-              "slug": video['snippet']['title'].lower().replace(' ', '-'),
               "youtube-video-id": video_id,
               "youtube-video": f"https://www.youtube.com/watch?v={video_id}",
               "anime-title-3": anime['id'],
@@ -54,6 +55,7 @@ def sync_anime_videos():
               "youtube-video-publish-date": video['snippet']['publishedAt']
             }
           }
+          
           add_anime_videos_collection_item(video_data)
 
 
