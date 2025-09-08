@@ -21,27 +21,37 @@ CREDS = Credentials.from_service_account_info(CREDS_DICT, scopes=["https://www.g
 YT_API_KEY = os.environ['YOUTUBE_API_KEY']
 
 def sync_anime_videos():
+
+  # Fetch all existing animes in Webflow.
   animes = fetch_animes()
-  for anime in animes:
-    print(json.dumps(anime, indent=2))  # 👈 show the whole thing
+
+  # Fetch all existing videos in Webflow for this anime.
+  all_existing_anime_videos = fetch_all_anime_videos()
+
+  # Group existing videos by anime
+  videos_by_anime = {}
+  for item in all_existing_anime_videos:
+      anime_id = item['fieldData'].get('anime-title-3')
+      videos_by_anime.setdefault(anime_id, []).append(item)
+
+  for anime in animes[:3]:
+    print(json.dumps(anime, indent=2)) 
     playlist_id = anime['fieldData'].get('youtube-playlist-id')
     print(f"\nProcessing anime: {anime['fieldData'].get('name')} (id={anime['id']}), playlist={playlist_id}")
 
     if playlist_id:
-      # 1. Fetch all YouTube videos
+      # Fetch all YouTube videos
       yt_videos = fetch_youtube_playlist_items(playlist_id)
       print(f"Fetched {len(yt_videos)} YouTube videos")
 
-      # 2. Fetch existing videos in Webflow for this anime
-      existing_items = fetch_anime_videos_for_anime(anime['id'])
-      existing_video_ids = {item['fieldData']['youtube-video-id'] for item in existing_items}
-      print(f"Existing Webflow videos: {len(existing_video_ids)}")
+      existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
+      print(f"Existing Webflow videos: {existing_video_ids}")
 
-      # 3. Loop through YouTube videos and add missing ones
+      # Loop through YouTube videos and add missing ones
       for video in yt_videos:
         video_id = video['contentDetails']['videoId']
+        print(f"video_id: {video_id}")
         if video_id not in existing_video_ids:
-
           # No need to include slug, Webflow will auto-generate it.
           video_data = {
             "isArchived": False,
@@ -55,7 +65,6 @@ def sync_anime_videos():
               "youtube-video-publish-date": video['snippet']['publishedAt']
             }
           }
-          
           add_anime_videos_collection_item(video_data)
 
 
@@ -66,17 +75,6 @@ def fetch_animes():
   else:
     print("Error fetching animes:", response.status_code, response.text)
     return []
-  
-
-def fetch_anime_videos_for_anime(anime_id):
-    response = requests.get(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS)
-    if response.ok:
-        items = response.json().get("items", [])
-        # Filter only videos linked to this anime
-        return [item for item in items if item['fieldData'].get('anime-title-3') == anime_id]
-    else:
-        print("Error fetching anime videos:", response.status_code, response.text)
-        return []
 
 
 def fetch_youtube_playlist_items(playlist_id):
@@ -95,6 +93,15 @@ def fetch_youtube_playlist_items(playlist_id):
         if not next_page_token:
             break
     return all_items
+
+
+def fetch_all_anime_videos():
+  response = requests.get(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS)
+  if response.ok:
+    return response.json().get("items", [])
+  else:
+    print("Error fetching anime videos:", response.status_code, response.text)
+    return []
 
 
 def add_anime_videos_collection_item(video_data):
