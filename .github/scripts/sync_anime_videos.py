@@ -28,29 +28,25 @@ def sync_anime_videos():
   # Fetch all existing videos in Webflow for this anime.
   all_existing_anime_videos = fetch_all_anime_videos()
 
-  # Group existing videos by anime
+  # Group existing videos by anime.
   videos_by_anime = {}
   for item in all_existing_anime_videos:
       anime_id = item['fieldData'].get('anime-title-3')
       videos_by_anime.setdefault(anime_id, []).append(item)
 
-  for anime in animes[:3]:
-    print(json.dumps(anime, indent=2)) 
+  for anime in animes:
     playlist_id = anime['fieldData'].get('youtube-playlist-id')
-    print(f"\nProcessing anime: {anime['fieldData'].get('name')} (id={anime['id']}), playlist={playlist_id}")
 
     if playlist_id:
-      # Fetch all YouTube videos
+      # Fetch all YouTube videos.
       yt_videos = fetch_youtube_playlist_items(playlist_id)
-      print(f"Fetched {len(yt_videos)} YouTube videos")
 
+      # Get existing video IDs for this anime to avoid duplicates.
       existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
-      print(f"Existing Webflow videos: {existing_video_ids}")
 
-      # Loop through YouTube videos and add missing ones
+      # Loop through YouTube videos and add missing ones.
       for video in yt_videos:
         video_id = video['contentDetails']['videoId']
-        print(f"video_id: {video_id}")
         if video_id not in existing_video_ids:
           print(f"Not existing video_id: {video_id}")
           # No need to include slug, Webflow will auto-generate it.
