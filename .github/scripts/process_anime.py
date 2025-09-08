@@ -171,7 +171,7 @@ def simple_slug(text: str) -> str:
     text = ''.join(c for c in text if unicodedata.category(c) != 'Mn') # Remove diacritics (accents)
     text = text.lower() # Lowercase
     text = re.sub(r'[^a-z0-9\s]', '', text) # Keep only a-z, 0-9, and spaces
-    text = text.strip().replace(' ', '_') # Trim and replace spaces with underscores
+    text = re.sub(r'\s+', '-', text.strip())  # replace spaces with dashes
     return text
 
 
