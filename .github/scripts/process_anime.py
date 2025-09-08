@@ -118,6 +118,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
         if response.ok:
             resp_json = response.json()
             new_animes_collection_id = resp_json["id"]
+            print(f"Created {title} (playlist_id: {playlist_id})")
         else:
             print("Webflow error:", response.status_code, response.text)
             response.raise_for_status()
@@ -157,6 +158,8 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
                 }
             }
             video_response = requests.post(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS, json=video_data)
+            if video_response.ok:
+                print(f"Created video: {snippet['title']} (video_id: {video_id})")
             if not video_response.ok:
                 print("Webflow error:", video_response.status_code, video_response.text)
                 video_response.raise_for_status()

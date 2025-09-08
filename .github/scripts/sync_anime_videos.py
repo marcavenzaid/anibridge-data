@@ -48,7 +48,7 @@ def sync_anime_videos():
       for video in yt_videos:
         video_id = video['contentDetails']['videoId']
         if video_id not in existing_video_ids:
-          print(f"Not existing video_id: {video_id}")
+          print(f"{video['snippet']['title']}: Not existing video_id: {video_id}")
           # No need to include slug, Webflow will auto-generate it.
           video_data = {
             "isArchived": False,
