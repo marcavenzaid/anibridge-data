@@ -25,7 +25,7 @@ YT_API_KEY = os.environ['YOUTUBE_API_KEY']
 def sync_anime_videos():
 
   # Fetch all existing animes in Webflow.
-  animes = fetch_all_animes()
+  all_existing_animes = fetch_all_animes()
   # print(f"animes: {animes}")
 
   # Fetch all existing videos in Webflow for this anime.
@@ -35,10 +35,10 @@ def sync_anime_videos():
   videos_by_anime = {}
   for item in all_existing_anime_videos:
     anime_id = item['fieldData'].get('anime-title-3')
+    print(f"{item['fieldData'].get('name')} - {item['fieldData'].get('youtube-video-id')}")
     videos_by_anime.setdefault(anime_id, []).append(item)
-  print(f"videos_by_anime: {videos_by_anime}")
 
-  for anime in animes[:5]:
+  for anime in all_existing_animes[:5]:
     print(f"anime: {anime}")
     playlist_id = anime['fieldData'].get('youtube-playlist-id')
 
