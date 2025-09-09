@@ -116,19 +116,20 @@ def fetch_all(collection_url, headers):
   all_responses = []
   offset = 0
   total = None
-  limit = None
+  limit = 100  # Webflow max allowed per page
 
   while True:
     response = requests.get(
-      f"{collection_url}?offset={offset}",
+      f"{collection_url}?offset={offset}&limit={limit}",
       headers=headers
     )
 
     # Handle rate limit
     if response.status_code == 429:
       retry_after = int(response.headers.get("Retry-After", 5))
+      print(f"⚠️ Rate limit hit, retrying after {retry_after}s...")
       time.sleep(retry_after)
-      continue  # retry the same request
+      continue  # retry same request
 
     if not response.ok:
       print("Error fetching items:", response.status_code, response.text)
@@ -137,21 +138,26 @@ def fetch_all(collection_url, headers):
     data = response.json()
     all_responses.append(data)
 
+    items = data.get("items", [])
+    if not items:
+      print("No items returned.")
+      break
+
     # Capture pagination info
     if total is None:
-      total = data.get("total", len(data.get("items", [])))
-      limit = data.get("limit", len(data.get("items", [])))
+      total = data.get("total", len(items))
 
-    if (offset + limit) >= total:
-      break
+    print(f"Page fetched: offset={offset}, limit={limit}, got {len(items)} items, total={total}")
 
     offset += limit
 
-    print(f"Page fetched: offset={offset}, limit={limit}, total={total}, len(data): {len(data)}")
+    if offset >= total:
+      break
 
-    time.sleep(1)  # Stay under the webflow api limit of 60 req/min.
+    time.sleep(1)  # Stay under Webflow's 60 req/min limit
 
   return all_responses
+
 
 
 def main():
