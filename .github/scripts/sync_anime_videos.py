@@ -24,6 +24,7 @@ def sync_anime_videos():
 
   # Fetch all existing animes in Webflow.
   animes = fetch_animes()
+  print(f"animes: {animes}")
 
   # Fetch all existing videos in Webflow for this anime.
   all_existing_anime_videos = fetch_all_anime_videos()
@@ -43,6 +44,7 @@ def sync_anime_videos():
 
       # Get existing video IDs for this anime to avoid duplicates.
       existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
+      print(f"{anime}: existing_video_ids: {existing_video_ids}")
 
       # Loop through YouTube videos and add missing ones.
       for video in yt_videos:
