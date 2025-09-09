@@ -74,22 +74,6 @@ def process():
         for issue in issues:
             has_issues_sheet.append_row(issue)
 
-def get_all_playlist_items(yt, playlist_id):
-    all_items = []
-    next_page_token = None
-    while True:
-        request = yt.playlistItems().list(
-            part='snippet,contentDetails',
-            playlistId=playlist_id,
-            maxResults=50, # 50 is the maximum number of results per page.
-            pageToken=next_page_token
-        )
-        response = request.execute()
-        all_items.extend(response.get('items', []))
-        next_page_token = response.get('nextPageToken')
-        if not next_page_token:
-            break
-    return {'items': all_items}
 
 def create_animes_collection_items(title, playlist_id, thumb_url, idx):
     try:
@@ -167,6 +151,24 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
         except Exception as e:
             issues.append([title, playlist_id, thumb_url, f"Error processing video {video_id}: {e}"])
             continue
+
+def get_all_playlist_items(yt, playlist_id):
+    all_items = []
+    next_page_token = None
+    while True:
+        request = yt.playlistItems().list(
+            part='snippet,contentDetails',
+            playlistId=playlist_id,
+            maxResults=50, # 50 is the maximum number of results per page.
+            pageToken=next_page_token
+        )
+        response = request.execute()
+        all_items.extend(response.get('items', []))
+        next_page_token = response.get('nextPageToken')
+        if not next_page_token:
+            break
+    return {'items': all_items}
+
 
 def main():
     process()

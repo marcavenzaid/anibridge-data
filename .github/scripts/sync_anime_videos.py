@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import time
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
@@ -9,6 +10,7 @@ ANIMES_COLLECTION_ID = "67fffeccd6749ed6ce46961b"
 ANIME_VIDEOS_COLLECTION_ID = "67ffcb961b77a49b301d4a26"
 ANIMES_GET_COLLECTION_ITEMS_URL = f"https://api.webflow.com/v2/collections/{ANIMES_COLLECTION_ID}/items"
 ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
+ANIME_VIDEOS_LIST_COLLECTION_ITEMS_URL = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
 
 WEBFLOW_API_HEADERS = {
   "Authorization": f"Bearer {WEBFLOW_API_SITE_TOKEN}",
@@ -23,7 +25,7 @@ YT_API_KEY = os.environ['YOUTUBE_API_KEY']
 def sync_anime_videos():
 
   # Fetch all existing animes in Webflow.
-  animes = fetch_animes()
+  animes = fetch_all_animes()
   # print(f"animes: {animes}")
 
   # Fetch all existing videos in Webflow for this anime.
@@ -69,15 +71,6 @@ def sync_anime_videos():
           add_anime_videos_collection_item(video_data)
 
 
-def fetch_animes():
-  response = requests.get(ANIMES_GET_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS)
-  if response.ok:
-    return response.json().get('items', [])
-  else:
-    print("Error fetching animes:", response.status_code, response.text)
-    return []
-
-
 def fetch_youtube_playlist_items(playlist_id):
     yt = build('youtube', 'v3', developerKey=YT_API_KEY)
     all_items = []
@@ -96,19 +89,65 @@ def fetch_youtube_playlist_items(playlist_id):
     return all_items
 
 
-def fetch_all_anime_videos():
-  response = requests.get(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS)
-  if response.ok:
-    return response.json().get("items", [])
-  else:
-    print("Error fetching anime videos:", response.status_code, response.text)
-    return []
-
-
 def add_anime_videos_collection_item(video_data):
   response = requests.post(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS, json=video_data)
   if not response.ok:
     print("Error adding video to collection:", response.status_code, response.text)
+
+
+def fetch_all_animes():
+  responses = fetch_all(ANIMES_GET_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
+  items = []
+  for data in responses:
+    items.extend(data.get("items", []))
+  return items
+
+
+def fetch_all_anime_videos():
+  responses = fetch_all(ANIME_VIDEOS_LIST_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
+  items = []
+  for data in responses:
+    items.extend(data.get("items", []))
+  return items
+
+
+def fetch_all(collection_url, headers):
+  all_responses = []
+  offset = 0
+  total = None
+  limit = None
+
+  while True:
+    response = requests.get(
+      f"{collection_url}?offset={offset}",
+      headers=headers
+    )
+
+    # Handle rate limit
+    if response.status_code == 429:
+      retry_after = int(response.headers.get("Retry-After", 5))
+      time.sleep(retry_after)
+      continue  # retry the same request
+
+    if not response.ok:
+      print("Error fetching items:", response.status_code, response.text)
+      break
+
+    data = response.json()
+    all_responses.append(data)
+
+    # Capture pagination info
+    if total is None:
+      total = data.get("total", len(data.get("items", [])))
+      limit = data.get("limit", len(data.get("items", [])))
+
+    if (offset + limit) >= total:
+      break
+
+    offset += limit
+    time.sleep(1)  # Stay under the webflow api limit of 60 req/min.
+
+  return all_responses
 
 
 def main():
