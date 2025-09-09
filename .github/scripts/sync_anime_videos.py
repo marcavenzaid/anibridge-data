@@ -32,9 +32,9 @@ def sync_anime_videos():
   # Group existing videos by anime.
   videos_by_anime = {}
   for item in all_existing_anime_videos:
-      anime_id = item['fieldData'].get('anime-title-3')
-      videos_by_anime.setdefault(anime_id, []).append(item)
-      print(f"videos_by_anime: {videos_by_anime}")
+    anime_id = item['fieldData'].get('anime-title-3')
+    videos_by_anime.setdefault(anime_id, []).append(item)
+  print(f"videos_by_anime: {videos_by_anime}")
 
   for anime in animes[:5]:
     print(f"anime: {anime}")
