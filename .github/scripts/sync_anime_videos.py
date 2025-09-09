@@ -102,7 +102,7 @@ def add_anime_videos_collection_item(video_data):
     print("Error adding video to collection:", response.status_code, response.text)
 
 
-def fetch_animes():
+def fetch_all_animes():
   return fetch_all_items(ANIMES_GET_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
 
 
