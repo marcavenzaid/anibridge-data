@@ -24,7 +24,7 @@ def sync_anime_videos():
 
   # Fetch all existing animes in Webflow.
   animes = fetch_animes()
-  print(f"animes: {animes}")
+  # print(f"animes: {animes}")
 
   # Fetch all existing videos in Webflow for this anime.
   all_existing_anime_videos = fetch_all_anime_videos()
@@ -35,7 +35,8 @@ def sync_anime_videos():
       anime_id = item['fieldData'].get('anime-title-3')
       videos_by_anime.setdefault(anime_id, []).append(item)
 
-  for anime in animes:
+  for anime in animes[:5]:
+    print(f"anime: {anime}")
     playlist_id = anime['fieldData'].get('youtube-playlist-id')
 
     if playlist_id:
