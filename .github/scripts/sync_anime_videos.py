@@ -26,10 +26,11 @@ def sync_anime_videos():
 
   # Fetch all existing animes in Webflow.
   all_existing_animes = fetch_all_animes()
-  # print(f"animes: {animes}")
+  print(f"all_existing_animes: {len(all_existing_animes)} total")
 
   # Fetch all existing videos in Webflow for this anime.
   all_existing_anime_videos = fetch_all_anime_videos()
+  print(f"all_existing_anime_videos: {len(all_existing_anime_videos)} total")
 
   # Group existing videos by anime.
   videos_by_anime = {}
@@ -145,6 +146,9 @@ def fetch_all(collection_url, headers):
       break
 
     offset += limit
+
+    print(f"Page fetched: offset={offset}, limit={limit}, total={total}, len(data): {len(data)}")
+
     time.sleep(1)  # Stay under the webflow api limit of 60 req/min.
 
   return all_responses
