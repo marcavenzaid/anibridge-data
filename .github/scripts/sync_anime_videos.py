@@ -96,27 +96,24 @@ def add_anime_videos_collection_item(video_data):
     print("Error adding video to collection:", response.status_code, response.text)
 
 
-def fetch_all_animes():
-  responses = fetch_all(ANIMES_GET_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
-  items = []
-  for data in responses:
-    items.extend(data.get("items", []))
-  return items
+def add_anime_videos_collection_item(video_data):
+  response = requests.post(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS, json=video_data)
+  if not response.ok:
+    print("Error adding video to collection:", response.status_code, response.text)
+
+
+def fetch_animes():
+  return fetch_all_items(ANIMES_GET_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
 
 
 def fetch_all_anime_videos():
-  responses = fetch_all(ANIME_VIDEOS_LIST_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
-  items = []
-  for data in responses:
-    items.extend(data.get("items", []))
-  return items
+  return fetch_all_items(ANIME_VIDEOS_LIST_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS)
 
 
-def fetch_all(collection_url, headers):
-  all_responses = []
+def fetch_all_items(collection_url, headers):
+  all_items = []
   offset = 0
-  total = None
-  limit = 100  # Webflow max allowed per page
+  limit = 100  # Webflow API's max limit per request.
 
   while True:
     response = requests.get(
@@ -127,37 +124,29 @@ def fetch_all(collection_url, headers):
     # Handle rate limit
     if response.status_code == 429:
       retry_after = int(response.headers.get("Retry-After", 5))
-      print(f"⚠️ Rate limit hit, retrying after {retry_after}s...")
+      print(f"Rate limit hit, retrying after {retry_after}s...")
       time.sleep(retry_after)
-      continue  # retry same request
+      continue  # retry the same request
 
     if not response.ok:
       print("Error fetching items:", response.status_code, response.text)
       break
 
     data = response.json()
-    all_responses.append(data)
-
     items = data.get("items", [])
     if not items:
-      print("No items returned.")
+      break  # no more items
+
+    all_items.extend(items)
+
+    # If returned less than the limit, we've reached the last page
+    if len(items) < limit:
       break
-
-    # Capture pagination info
-    if total is None:
-      total = data.get("total", len(items))
-
-    print(f"Page fetched: offset={offset}, limit={limit}, got {len(items)} items, total={total}")
 
     offset += limit
+    time.sleep(1)  # stay under 60 req/min
 
-    if offset >= total:
-      break
-
-    time.sleep(1)  # Stay under Webflow's 60 req/min limit
-
-  return all_responses
-
+  return all_items
 
 
 def main():
