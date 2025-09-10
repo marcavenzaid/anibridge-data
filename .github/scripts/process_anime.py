@@ -43,6 +43,7 @@ to_add_playlist_ids = set()
 issues = []
 rows_to_clear = []
 
+CURRENT_DATETIME = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 def process():
     animes_to_publish = []
@@ -53,15 +54,14 @@ def process():
         title = row['anime_title']
         playlist_id = row['youtube_playlist_id']
         thumb_url = row['thumbnail_image_url']
-        date_added = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
         if playlist_id in added_playlist_ids:
-            issues.append([title, playlist_id, thumb_url, "Duplicate youtube_playlist_id in \"added\" sheet"])
+            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, "Duplicate youtube_playlist_id in \"added\" sheet"])
             rows_to_clear.append(idx)
             continue
 
         if playlist_id in to_add_playlist_ids:
-            issues.append([title, playlist_id, thumb_url, "Duplicate youtube_playlist_id in \"to add\" sheet"])
+            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, "Duplicate youtube_playlist_id in \"to add\" sheet"])
             rows_to_clear.append(idx)
             continue
 
@@ -83,11 +83,11 @@ def process():
             anime_videos_to_publish.extend(anime_videos_ids)
 
             # Record the addition in the "added" sheet.
-            added_sheet.append_row([title, playlist_id, thumb_url, date_added])
+            added_sheet.append_row([title, playlist_id, thumb_url, CURRENT_DATETIME])
             rows_to_clear.append(idx)
 
         except Exception as e:
-            issues.append([title, playlist_id, thumb_url, f"Failed to process anime: {e}"])
+            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, f"Failed to process anime: {e}"])
             rows_to_clear.append(idx)
             continue  # Skip publishing this anime/videos entirely
 
@@ -140,7 +140,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             return None, None
 
     except Exception as e:
-        issues.append([title, playlist_id, thumb_url, f"Error processing playlist {playlist_id}: {e}"])
+        issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, f"Error processing playlist {playlist_id}: {e}"])
         rows_to_clear.append(idx)  # Mark for clearing.
         return None, None
 
@@ -176,8 +176,8 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
                 }
             })
         except Exception as e:
-            issues.append([title, playlist_id, thumb_url,
-                          f"Error preparing video {video.get('contentDetails', {}).get('videoId', 'unknown')}: {e}"])
+            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, 
+                           f"Error preparing video {video.get('contentDetails', {}).get('videoId', 'unknown')}: {e}"])
             continue
 
     if not video_data_list:
@@ -197,7 +197,7 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
             response.raise_for_status()
             return []
     except Exception as e:
-        issues.append([title, playlist_id, thumb_url, f"Bulk video creation failed: {e}"])
+        issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, f"Bulk video creation failed: {e}"])
         return []
 
 
@@ -223,8 +223,7 @@ def publish_items(collection_id, item_ids):
     if not item_ids:
         return
     url = f"https://api.webflow.com/v2/collections/{collection_id}/items/publish"
-    response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={
-                             "itemIds": item_ids})
+    response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={"itemIds": item_ids})
     if response.ok:
         print(f"Published {len(item_ids)} items in collection {collection_id}")
     else:

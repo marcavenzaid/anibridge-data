@@ -2,9 +2,11 @@
 This repository contains Workflows to automate some processes for AniBridge.
 
 ## Workflows
-1. Export Webflow CMS to JSON - runs every day at 00:00 UTC
-2. Webflow Add Anime - runs every day at 01:00 UTC
-3. Webflow Sync Anime Videos - runs every day at 02:00 UTC
+|Workflow name              | Schedule                    |
+|---------------------------|-----------------------------|
+|Export Webflow CMS to JSON | runs every day at 00:00 UTC |
+|Webflow Add Anime          | runs every day at 01:00 UTC |
+|Webflow Sync Anime Videos  | runs every day at 02:00 UTC |
 
 ### Export Webflow CMS to JSON Workflow
 This workflow automatically exports data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
