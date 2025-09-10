@@ -22,10 +22,10 @@ The latest export is always available here: [affiliate_products.json](https://ma
 #### How It Works
 - A **GitHub Actions workflow** runs once every 24 hours, at 00:00 UTC (or manually).
 - The workflow:
-	1. Fetches CMS items from the AniBridge Webflow CMS via the Webflow API.
-	2. Extracts the fields we care about (`name`, `slug`, `price`, etc).
-	3. Saves them into `affiliate_products.json`.
-	4. Commits the JSON back to this repo.
+	1. Fetche CMS items from the AniBridge Webflow CMS via the Webflow API.
+	2. Extract the fields we care about (`name`, `slug`, `price`, etc).
+	3. Save them into `affiliate_products.json`.
+	4. Commit the JSON back to this repo.
 - GitHub Pages serves the JSON publicly at the URL above.
 
 #### Usage
@@ -46,20 +46,22 @@ This way, only Google sheet input of anime title, youtube playlist id, and thumb
 anibridge-add-anime-sheet: https://docs.google.com/spreadsheets/d/1C5sDE4ntv_-JlCZdby4B5eiMLcZJOhUKHQZjkvMJTyY
 
 #### How It Works
-- A **GitHub Actions workflow** runs once every 24 hours, at 01:00 UTC (or manually).
+- A **GitHub Actions workflow** runs every day at 01:00 UTC (or manually).
 - The workflow:
-	1. Fetches the entries in the anibridge-add-anime-sheet.
-	2. Checks for duplicates and other issues, if there are, then move those entries to the "has issues" sheet.
-	3. Fetches the details of the youtube playlist and the details of the videos in that playlist.
-	4. Creates Animes Collection items and the corresponding Anime Videos Collection items.
+	1. Fetche the entries in the anibridge-add-anime-sheet.
+	2. Check for duplicates and other issues, if there are, then move those entries to the "has issues" sheet.
+	3. Fetch the details of the youtube playlist and the details of the videos in that playlist.
+	4. Create Animes Collection items and the corresponding Anime Videos Collection items.
+	5. Publish the new Collection items in Webflow.
 
 ### Webflow Sync Anime Videos Workflow
 This workflow adds new videos added to the anime playlist that AniBridge already have in its CMS. This is for ongoing anime series so that the new episodes gets added to AniBridge automatically.
 
 #### How It Works
-- A **GitHub Actions workflow** runs once every 24 hours, at 02:00 UTC (or manually).
+- A **GitHub Actions workflow** runs every day at 02:00 UTC (or manually).
 - The workflow:
-	1. Fetches the items from Animes Collection.
-	2. Checks the playlist of each of the items if there is a new video.
-	3. If there is a new video, fetches the details of the new video.
-	4. Adds the new item to the Anime Videos Collection.
+	1. Fetch the items from Animes Collection.
+	2. Check the playlist of each of the items if there is a new video.
+	3. If there is a new video, fetch the details of the new video.
+	4. Create the Anime Videos Collection items.
+	5. Publish the new Collection items in Webflow.
