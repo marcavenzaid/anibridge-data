@@ -8,19 +8,20 @@ from datetime import datetime, timezone
 import unicodedata
 import re
 
-WEBFLOW_API_SITE_TOKEN = os.environ["WEBFLOW_API_SITE_TOKEN"]  # Set this secret in GitHub
+# Set this secret in GitHub.
+WEBFLOW_API_SITE_TOKEN = os.environ["WEBFLOW_API_SITE_TOKEN"]
 ANIMES_COLLECTION_ID = "67fffeccd6749ed6ce46961b"
 ANIME_VIDEOS_COLLECTION_ID = "67ffcb961b77a49b301d4a26"
 ANIMES_CREATE_COLLECTION_ITEMS_URL = f"https://api.webflow.com/v2/collections/{ANIMES_COLLECTION_ID}/items"
 ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
 
-# Create Webflow collection item
+# Create Webflow collection item.
 WEBFLOW_API_HEADERS = {
     "Authorization": f"Bearer {WEBFLOW_API_SITE_TOKEN}",
     "Content-Type": "application/json"
 }
 
-# Authenticate Google Sheets
+# Authenticate Google Sheets.
 CREDS_JSON = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
 CREDS_DICT = json.loads(CREDS_JSON)
 CREDS = Credentials.from_service_account_info(CREDS_DICT, scopes=["https://www.googleapis.com/auth/spreadsheets"])
@@ -42,8 +43,13 @@ to_add_playlist_ids = set()
 issues = []
 rows_to_clear = []
 
+
 def process():
-    for idx, row in enumerate(TO_ADD, start=2):  # start=2 because row 1 is header
+    animes_to_publish = []
+    anime_videos_to_publish = []
+
+    # start=2 because row 1 is header.
+    for idx, row in enumerate(TO_ADD, start=2):
         title = row['anime_title']
         playlist_id = row['youtube_playlist_id']
         thumb_url = row['thumbnail_image_url']
@@ -51,35 +57,59 @@ def process():
 
         if playlist_id in added_playlist_ids:
             issues.append([title, playlist_id, thumb_url, "Duplicate youtube_playlist_id in \"added\" sheet"])
-            rows_to_clear.append(idx)  # Mark rows that have been moved to another sheet for clearing.
-        elif playlist_id in to_add_playlist_ids:
-            issues.append([title, playlist_id, thumb_url, "Duplicate youtube_playlist_id in \"to add\" sheet"])
-            rows_to_clear.append(idx)  # Mark rows that have been moved to another sheet for clearing.
-        else:
-            to_add_playlist_ids.add(playlist_id)
-            
-            playlist_items, new_animes_collection_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
-            create_anime_videos_collection_items(new_animes_collection_id, playlist_items, title, playlist_id, thumb_url)
-            
-            added_sheet.append_row([title, playlist_id, thumb_url, date_added])
-            rows_to_clear.append(idx)  # Mark rows that have been moved to another sheet for clearing.
+            rows_to_clear.append(idx)
+            continue
 
-    # Remove processed rows from "to add" sheet (clear each row)
+        if playlist_id in to_add_playlist_ids:
+            issues.append([title, playlist_id, thumb_url, "Duplicate youtube_playlist_id in \"to add\" sheet"])
+            rows_to_clear.append(idx)
+            continue
+
+        to_add_playlist_ids.add(playlist_id)
+
+        try:
+            # Create new item in the Animes collection.
+            playlist_items, anime_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
+
+            if not anime_id:
+                raise Exception("Anime creation failed (no ID returned)")
+
+            anime_videos_ids = create_anime_videos_collection_items(anime_id, playlist_items, title, playlist_id, thumb_url)
+
+            if not anime_videos_ids:
+                raise Exception("No videos created for this anime")
+
+            animes_to_publish.append(anime_id)
+            anime_videos_to_publish.extend(anime_videos_ids)
+
+            # Record the addition in the "added" sheet.
+            added_sheet.append_row([title, playlist_id, thumb_url, date_added])
+            rows_to_clear.append(idx)
+
+        except Exception as e:
+            issues.append([title, playlist_id, thumb_url, f"Failed to process anime: {e}"])
+            rows_to_clear.append(idx)
+            continue  # Skip publishing this anime/videos entirely
+
+    # Clear processed rows from "to add" sheet (clear each row).
     for row_idx in sorted(set(rows_to_clear), reverse=True):
-        # Assuming 3 columns: anime_title, youtube_playlist_id, thumbnail_image_url
         to_add_sheet.batch_clear([f"{row_idx}:{row_idx}"])
 
-    # Write issues to "has issues" sheet
+    # Write issues in "has issues" sheet.
     if issues:
         for issue in issues:
             has_issues_sheet.append_row(issue)
+
+    # Publish after everything is created
+    publish_items(ANIMES_COLLECTION_ID, animes_to_publish)
+    publish_items(ANIME_VIDEOS_COLLECTION_ID, anime_videos_to_publish)
 
 
 def create_animes_collection_items(title, playlist_id, thumb_url, idx):
     try:
         yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
         playlist = yt.playlists().list(
-            part='contentDetails,id,localizations,snippet,status', 
+            part='contentDetails,id,localizations,snippet,status',
             id=playlist_id
         ).execute()
         yt_playlist_items = get_all_playlist_items(yt, playlist_id)
@@ -103,19 +133,22 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             resp_json = response.json()
             new_animes_collection_id = resp_json["id"]
             print(f"Created {title} (playlist_id: {playlist_id})")
+            return yt_playlist_items, new_animes_collection_id
         else:
             print("Webflow error:", response.status_code, response.text)
             response.raise_for_status()
+            return None, None
 
-        return yt_playlist_items, new_animes_collection_id
-        
     except Exception as e:
         issues.append([title, playlist_id, thumb_url, f"Error processing playlist {playlist_id}: {e}"])
-        rows_to_clear.append(idx)  # Mark for clearing
+        rows_to_clear.append(idx)  # Mark for clearing.
+        return None, None
 
 
 def create_anime_videos_collection_items(item_id, items, title, playlist_id, thumb_url):
-    # Create collection items for each video in the playlist
+    video_data_list = []
+
+    # Gather all video items first
     for video in items.get('items', []):
         try:
             snippet = video['snippet']
@@ -124,12 +157,13 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
             video_url = f"https://www.youtube.com/watch?v={video_id}"
             episode_position = snippet['position'] + 1
             published_at = snippet['publishedAt']
+
             # Format published date to "YYYY-MM-DDTHH:mm:ssZ"
             dt = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
             published_at_utc = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            # No need to include slug, Webflow will auto-generate it.
-            video_data = {
+            # Collect item data
+            video_data_list.append({
                 "isArchived": False,
                 "isDraft": False,
                 "fieldData": {
@@ -140,17 +174,32 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
                     "episode-order": episode_position,
                     "youtube-video-publish-date": published_at_utc
                 }
-            }
-            video_response = requests.post(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS, json=video_data)
-            if video_response.ok:
-                print(f"Created video: {snippet['title']} (video_id: {video_id})")
-            if not video_response.ok:
-                print("Webflow error:", video_response.status_code, video_response.text)
-                video_response.raise_for_status()
-
+            })
         except Exception as e:
-            issues.append([title, playlist_id, thumb_url, f"Error processing video {video_id}: {e}"])
+            issues.append([title, playlist_id, thumb_url,
+                          f"Error preparing video {video.get('contentDetails', {}).get('videoId', 'unknown')}: {e}"])
             continue
+
+    if not video_data_list:
+        return []
+
+    # Send them all at once
+    url = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
+    try:
+        response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={"items": video_data_list})
+        if response.ok:
+            resp_json = response.json()
+            new_ids = [item["id"] for item in resp_json.get("items", [])]
+            print(f"Created {len(new_ids)} videos for anime ({title}, playlist_id: {playlist_id})")
+            return new_ids
+        else:
+            print("Webflow error:", response.status_code, response.text)
+            response.raise_for_status()
+            return []
+    except Exception as e:
+        issues.append([title, playlist_id, thumb_url, f"Bulk video creation failed: {e}"])
+        return []
+
 
 def get_all_playlist_items(yt, playlist_id):
     all_items = []
@@ -159,7 +208,7 @@ def get_all_playlist_items(yt, playlist_id):
         request = yt.playlistItems().list(
             part='snippet,contentDetails',
             playlistId=playlist_id,
-            maxResults=50, # 50 is the maximum number of results per page.
+            maxResults=50,  # 50 is the maximum number of results per page.
             pageToken=next_page_token
         )
         response = request.execute()
@@ -170,8 +219,22 @@ def get_all_playlist_items(yt, playlist_id):
     return {'items': all_items}
 
 
+def publish_items(collection_id, item_ids):
+    if not item_ids:
+        return
+    url = f"https://api.webflow.com/v2/collections/{collection_id}/items/publish"
+    response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={
+                             "itemIds": item_ids})
+    if response.ok:
+        print(f"Published {len(item_ids)} items in collection {collection_id}")
+    else:
+        print("Webflow publish error:", response.status_code, response.text)
+        response.raise_for_status()
+
+
 def main():
     process()
+
 
 if __name__ == "__main__":
     main()
