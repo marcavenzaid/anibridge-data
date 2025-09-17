@@ -1,9 +1,9 @@
-name: Export Webflow Affiliate Products to JSON
+name: Export Webflow Animes to JSON
 
 on:
   workflow_dispatch:        # allow manual run
   schedule:
-    - cron: "0 0 * * *"     # runs every day at 00:00 UTC
+    - cron: "0 1 * * *"     # runs every day at 01:00 UTC
 
 jobs:
   export-cms:
@@ -13,13 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Fetch CMS data from Webflow
+      - name: Fetch CMS data from Webflow (Animes)
         run: |
           node -e "
           const fs = require('fs');
 
           (async () => {
-            const url = 'https://api.webflow.com/v2/collections/68933f50454777c4b8afb247/items';
+            const url = \`https://api.webflow.com/v2/collections/67fffeccd6749ed6ce46961b/items\`;
             let items = [];
             let offset = 0;
             const limit = 100;
@@ -42,14 +42,15 @@ jobs:
             const simplified = items.map(i => ({
               name: i.fieldData.name,
               slug: i.fieldData.slug,
-              price: i.fieldData['price'],
-              affiliateLink: i.fieldData['affiliate-link'],
-              description: i.fieldData.description,
-              tempImage: i.fieldData['temp-image'],
-              affiliatePartner: i.fieldData['affiliate-partner']
+              thumbnail: i.fieldData['thumbnail'],
+              releaseDate: i.fieldData['release-date'],
+              genres: i.fieldData['genres'],
+              description: i.fieldData['description'],
+              youtubePlaylistId: i.fieldData['youtube-playlist-id'],
+              trailerYoutubeVideoId: i.fieldData['trailer-youtube-video-id']
             }));
 
-            fs.writeFileSync('affiliate_products.json', JSON.stringify(simplified, null, 2));
+            fs.writeFileSync('animes.json', JSON.stringify(simplified, null, 2));
           })();
           "
         env:
@@ -59,8 +60,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add affiliate_products.json
-          git commit -m "Auto-update affiliate_products.json from Webflow CMS" || echo "No changes to commit"
+          git add animes.json
+          git commit -m "Auto-update animes.json from Webflow CMS" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
