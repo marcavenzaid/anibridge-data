@@ -9,7 +9,8 @@
       "fileId": "68ac6d8f9bdc0a45a73dc3c8",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d8f9bdc0a45a73dc3c8_sample%20product%20elegant_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Amazon"
   },
   {
     "name": "Sample Product Mahou Shoujo 2",
@@ -21,7 +22,8 @@
       "fileId": "68ac6d8643eb2a8281f59583",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d8643eb2a8281f59583_sample%20product%20mahou%20shoujo%202_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Hobby Link Japan"
   },
   {
     "name": "Sample Product Ship Girl",
@@ -45,7 +47,8 @@
       "fileId": "68ac6d6f125bd211ae6db227",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d6f125bd211ae6db227_sample%20product%20school%20girl_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Tokyo Otaku Mode"
   },
   {
     "name": "Sample Product Mahou Shoujo",
@@ -57,7 +60,8 @@
       "fileId": "68ac6d66ef96007dbff85d5c",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d66ef96007dbff85d5c_sample%20product%20mahou%20shoujo_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Hobby Link Japan"
   },
   {
     "name": "Sample Product Succubus",
@@ -69,7 +73,8 @@
       "fileId": "68ac6d5b4e302e379ea68c5a",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d5b4e302e379ea68c5a_sample%20product%20succubus_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Amazon"
   },
   {
     "name": "Sample Product 4",
@@ -81,7 +86,8 @@
       "fileId": "689348512ec99b24ba6c3456",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/689348512ec99b24ba6c3456_sample_product_3_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Amazon"
   },
   {
     "name": "Sample Product 3",
@@ -93,7 +99,8 @@
       "fileId": "68ac6d466cff40b68d3f7d69",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d466cff40b68d3f7d69_sample_product_3_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Hobby Link Japan"
   },
   {
     "name": "Sample Product 2",
@@ -105,7 +112,8 @@
       "fileId": "68ac6d3a1a69473b8fb51307",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d3a1a69473b8fb51307_sample_product_2_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Tokyo Otaku Mode"
   },
   {
     "name": "Sample Product 1",
@@ -117,6 +125,7 @@
       "fileId": "68ac6d1f35b1ce2c0bf467c5",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68ac6d1f35b1ce2c0bf467c5_sample_product_1_sm.png",
       "alt": null
-    }
+    },
+    "affiliatePartner": "Amazon"
   }
 ]

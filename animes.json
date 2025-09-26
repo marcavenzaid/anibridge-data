@@ -1,5 +1,15 @@
 [
   {
+    "name": "The Unwanted Undead Adventurer",
+    "slug": "the-unwanted-undead-adventurer",
+    "thumbnail": {
+      "fileId": "68d0bdd14b6df8c5266cf458",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68d0bdd14b6df8c5266cf458_bx147642-SztpXNn9ke6P.jpeg",
+      "alt": null
+    },
+    "youtubePlaylistId": "PLwLSw1_eDZl3tJE53C10vT7BjOzXaG5q5"
+  },
+  {
     "name": "Our Dating Story: The Experienced You and The Inexperienced Me",
     "slug": "our-dating-story-the-experienced-you-and-the-inexperienced-me",
     "thumbnail": {
@@ -57,7 +67,7 @@
   },
   {
     "name": "Beheneko: The Elf-Girl's Cat is Secretly an S-Ranked Monster!",
-    "slug": "beheneko_the_elfgirls_cat_is_secretly_an_sranked_monster-e6ad6",
+    "slug": "beheneko-the-elfgirls-cat-is-secretly-an-sranked-monster-e6ad6",
     "thumbnail": {
       "fileId": "68bce39a7590a298c3d2b7d1",
       "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68bce39a7590a298c3d2b7d1_bx176158-nQ6EtQp76q6d.jpeg",
