@@ -205,19 +205,12 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
 
 
 def fetch_all_playlist_videos(yt, playlist_id):
-    """
-    Fetch all videos in a YouTube playlist.
-    Step 1: Get video IDs + their playlist positions from playlistItems().
-    Step 2: Fetch full video details from videos().list() in batches of 50.
-    Step 3: Merge position info into each video.
-    """
-
     all_video_ids = []             # Store all video IDs
     video_positions = {}           # Map videoId -> position
     next_page_token = None
 
     # ----------------------------
-    # Step 1: Get all video IDs + positions
+    # Get all video IDs + positions
     # ----------------------------
     while True:
         request = yt.playlistItems().list(
@@ -241,7 +234,7 @@ def fetch_all_playlist_videos(yt, playlist_id):
             break
 
     # ----------------------------
-    # Step 2: Fetch video details in batches of 50
+    # Fetch video details in batches of 50
     # ----------------------------
     all_videos = []
     for i in range(0, len(all_video_ids), 50):
@@ -257,11 +250,12 @@ def fetch_all_playlist_videos(yt, playlist_id):
         for video in response.get("items", []):
             vid = video["id"]
 
-            # ----------------------------
-            # Step 3: Merge position into video details
-            # ----------------------------
+            # Merge position into video details
             video["playlistPosition"] = video_positions.get(vid)
             all_videos.append(video)
+
+    # Sort results by playlist position to guarantee correct order
+    all_videos.sort(key=lambda v: v.get("playlistPosition", float("inf")))
 
     return {"items": all_videos}
 
