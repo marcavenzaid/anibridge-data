@@ -248,6 +248,10 @@ def fetch_all_playlist_videos(yt, playlist_id):
         response = request.execute()
 
         for video in response.get("items", []):
+            # Skip privated/deleted videos (no snippet = no metadata)
+            if "snippet" not in video:
+                continue 
+            
             vid = video["id"]
 
             # Merge position into video details
