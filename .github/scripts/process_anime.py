@@ -69,12 +69,12 @@ def process():
 
         try:
             # Create new item in the Animes collection.
-            playlist_items, anime_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
+            playlist_videos, anime_id = create_animes_collection_items(title, playlist_id, thumb_url, idx)
 
             if not anime_id:
                 raise Exception("Anime creation failed (no ID returned)")
 
-            anime_videos_ids = create_anime_videos_collection_items(anime_id, playlist_items, title, playlist_id, thumb_url)
+            anime_videos_ids = create_anime_videos_collection_items(anime_id, playlist_videos, title, playlist_id, thumb_url)
 
             if not anime_videos_ids:
                 raise Exception("No videos created for this anime")
@@ -112,7 +112,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             part='contentDetails,id,localizations,snippet,status',
             id=playlist_id
         ).execute()
-        yt_playlist_items = fetch_all_playlist_items(yt, playlist_id)
+        playlist_videos = fetch_all_playlist_videos(yt, playlist_id)
         description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
         # No need to include slug, Webflow will auto-generate it.
@@ -133,7 +133,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             resp_json = response.json()
             new_animes_collection_id = resp_json["id"]
             print(f"Created {title} (playlist_id: {playlist_id})")
-            return yt_playlist_items, new_animes_collection_id
+            return playlist_videos, new_animes_collection_id
         else:
             print("Webflow error:", response.status_code, response.text)
             response.raise_for_status()
@@ -145,17 +145,20 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
         return None, None
 
 
-def create_anime_videos_collection_items(item_id, items, title, playlist_id, thumb_url):
+def create_anime_videos_collection_items(item_id, playlist_videos, title, playlist_id, thumb_url):
     video_data_list = []
 
     # Gather all video items first.
-    for video in items.get('items', []):
+    for video in playlist_videos.get('items', []):
         try:
             snippet = video['snippet']
-            content_details = video['contentDetails']
-            video_id = content_details['videoId']
+            localized_snippet = snippet.get('localized')
+
+            video_id = video['id']
             video_url = f"https://www.youtube.com/watch?v={video_id}"
-            episode_position = snippet['position'] + 1
+
+            video_title = localized_snippet.get('title', snippet['title'])
+            episode_position = video['playlistPosition'] + 1
             published_at = snippet['publishedAt']
 
             # Format published date to "YYYY-MM-DDTHH:mm:ssZ"
@@ -167,7 +170,7 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
                 "isArchived": False,
                 "isDraft": False,
                 "fieldData": {
-                    "name": snippet['title'],
+                    "name": video_title,
                     "youtube-video-id": video_id,
                     "youtube-video": video_url,
                     "anime-title-3": item_id,
@@ -203,57 +206,64 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
 
 def fetch_all_playlist_videos(yt, playlist_id):
     """
-    Fetch all videos in a YouTube playlist using playlistItems() to get video IDs,
-    then videos().list() to fetch full video details in batches of 50.
+    Fetch all videos in a YouTube playlist.
+    Step 1: Get video IDs + their playlist positions from playlistItems().
+    Step 2: Fetch full video details from videos().list() in batches of 50.
+    Step 3: Merge position info into each video.
     """
-    
-    all_video_ids = []   # Store all video IDs from the playlist
+
+    all_video_ids = []             # Store all video IDs
+    video_positions = {}           # Map videoId -> position
     next_page_token = None
 
     # ----------------------------
-    # Get all video IDs from the playlist
+    # Step 1: Get all video IDs + positions
     # ----------------------------
     while True:
         request = yt.playlistItems().list(
-            part="contentDetails",       # We only need videoId here
-            playlistId=playlist_id,      # Playlist we’re fetching from
-            maxResults=50,               # Max allowed by API per request
-            pageToken=next_page_token    # Handle pagination
+            part="contentDetails,snippet",  # snippet is needed for position
+            playlistId=playlist_id,
+            maxResults=50,
+            pageToken=next_page_token
         )
         response = request.execute()
 
-        # Extract each video's ID from contentDetails
         for item in response.get("items", []):
-            all_video_ids.append(item["contentDetails"]["videoId"])
+            video_id = item["contentDetails"]["videoId"]
+            position = item["snippet"]["position"]
+            
+            all_video_ids.append(video_id)
+            video_positions[video_id] = position  # Save position
 
-        # Move to next page if available
+        # Pagination handling
         next_page_token = response.get("nextPageToken")
         if not next_page_token:
-            break   # Stop when no more pages
+            break
 
     # ----------------------------
-    # Fetch video details in batches of 50
+    # Step 2: Fetch video details in batches of 50
     # ----------------------------
     all_videos = []
-    # Loop in steps of 50 (YouTube videos().list max limit per request)
     for i in range(0, len(all_video_ids), 50):
-        # Take 50 video IDs at a time
         batch_ids = all_video_ids[i:i+50]
 
-        # Request details for this batch
         request = yt.videos().list(
-            part="snippet,contentDetails",   # What info we want
-            id=",".join(batch_ids),          # Comma-separated video IDs
-            hl="en"                          # Ask API for English metadata
+            part="snippet,contentDetails",
+            id=",".join(batch_ids),
+            hl="en"
         )
         response = request.execute()
 
-        # Add these videos' details to the full list
-        all_videos.extend(response.get("items", []))
+        for video in response.get("items", []):
+            vid = video["id"]
 
-    # Return all video details as one big list
+            # ----------------------------
+            # Step 3: Merge position into video details
+            # ----------------------------
+            video["playlistPosition"] = video_positions.get(vid)
+            all_videos.append(video)
+
     return {"items": all_videos}
-
 
 
 def publish_items(collection_id, item_ids):
