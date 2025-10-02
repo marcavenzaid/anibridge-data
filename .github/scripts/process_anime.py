@@ -112,7 +112,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             part='contentDetails,id,localizations,snippet,status',
             id=playlist_id
         ).execute()
-        yt_playlist_items = get_all_playlist_items(yt, playlist_id)
+        yt_playlist_items = fetch_all_playlist_items(yt, playlist_id)
         description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
         # No need to include slug, Webflow will auto-generate it.
@@ -148,7 +148,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
 def create_anime_videos_collection_items(item_id, items, title, playlist_id, thumb_url):
     video_data_list = []
 
-    # Gather all video items first
+    # Gather all video items first.
     for video in items.get('items', []):
         try:
             snippet = video['snippet']
@@ -162,7 +162,7 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
             dt = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
             published_at_utc = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            # Collect item data
+            # Collect item data.
             video_data_list.append({
                 "isArchived": False,
                 "isDraft": False,
@@ -201,22 +201,59 @@ def create_anime_videos_collection_items(item_id, items, title, playlist_id, thu
         return []
 
 
-def get_all_playlist_items(yt, playlist_id):
-    all_items = []
+def fetch_all_playlist_videos(yt, playlist_id):
+    """
+    Fetch all videos in a YouTube playlist using playlistItems() to get video IDs,
+    then videos().list() to fetch full video details in batches of 50.
+    """
+    
+    all_video_ids = []   # Store all video IDs from the playlist
     next_page_token = None
+
+    # ----------------------------
+    # Get all video IDs from the playlist
+    # ----------------------------
     while True:
         request = yt.playlistItems().list(
-            part='snippet,contentDetails',
-            playlistId=playlist_id,
-            maxResults=50,  # 50 is the maximum number of results per page.
-            pageToken=next_page_token
+            part="contentDetails",       # We only need videoId here
+            playlistId=playlist_id,      # Playlist we’re fetching from
+            maxResults=50,               # Max allowed by API per request
+            pageToken=next_page_token    # Handle pagination
         )
         response = request.execute()
-        all_items.extend(response.get('items', []))
-        next_page_token = response.get('nextPageToken')
+
+        # Extract each video's ID from contentDetails
+        for item in response.get("items", []):
+            all_video_ids.append(item["contentDetails"]["videoId"])
+
+        # Move to next page if available
+        next_page_token = response.get("nextPageToken")
         if not next_page_token:
-            break
-    return {'items': all_items}
+            break   # Stop when no more pages
+
+    # ----------------------------
+    # Fetch video details in batches of 50
+    # ----------------------------
+    all_videos = []
+    # Loop in steps of 50 (YouTube videos().list max limit per request)
+    for i in range(0, len(all_video_ids), 50):
+        # Take 50 video IDs at a time
+        batch_ids = all_video_ids[i:i+50]
+
+        # Request details for this batch
+        request = yt.videos().list(
+            part="snippet,contentDetails",   # What info we want
+            id=",".join(batch_ids),          # Comma-separated video IDs
+            hl="en"                          # Ask API for English metadata
+        )
+        response = request.execute()
+
+        # Add these videos' details to the full list
+        all_videos.extend(response.get("items", []))
+
+    # Return all video details as one big list
+    return {"items": all_videos}
+
 
 
 def publish_items(collection_id, item_ids):
