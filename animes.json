@@ -1,5 +1,35 @@
 [
   {
+    "name": "Basilisk: The Ouka Ninja Scrolls",
+    "slug": "basilisk-the-ouka-ninja-scrolls",
+    "thumbnail": {
+      "fileId": "68da5c6bb22fc56b9dc16b38",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68da5c6bb22fc56b9dc16b38_nx99569-BqPSH9otSLzO.jpeg",
+      "alt": null
+    },
+    "youtubePlaylistId": "PLxSscENEp7Jj8y0y9f_nJBbG1LXyFHxMH"
+  },
+  {
+    "name": "Hero Without a Class: Who Even Needs Skills?",
+    "slug": "hero-without-a-class-who-even-needs-skills",
+    "thumbnail": {
+      "fileId": "68da5c691012c6163fca1cd9",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68da5c691012c6163fca1cd9_bx169969-SqCjoqYT4A6Z.jpeg",
+      "alt": null
+    },
+    "youtubePlaylistId": "PLxSscENEp7Jg4B_E2Pp7_q0KZB1IKF_US"
+  },
+  {
+    "name": "The Fated Magical Princess: Who Made Me a Princess",
+    "slug": "the-fated-magical-princess-who-made-me-a-princess",
+    "thumbnail": {
+      "fileId": "68da5c67e57b6867292d350d",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68da5c67e57b6867292d350d_bx165530-Ku7VZt2NCIgf.jpeg",
+      "alt": null
+    },
+    "youtubePlaylistId": "PLwLSw1_eDZl1gpPkmqA5aKbsWYRdOSF5Z"
+  },
+  {
     "name": "The Unwanted Undead Adventurer",
     "slug": "the-unwanted-undead-adventurer",
     "thumbnail": {
