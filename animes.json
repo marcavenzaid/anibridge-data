@@ -1,10 +1,21 @@
 [
   {
+    "name": "Private Tutor to the Duke's Daughter",
+    "slug": "private-tutor-to-the-duke-s-daughter",
+    "thumbnail": {
+      "fileId": "68de58ee0b296cf4d9016d24",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68de58ee0b296cf4d9016d24_bx116864-sB3nVf2p96qf.jpeg",
+      "alt": null
+    },
+    "description": "Allen failed his court sorcerer exam. The world is harsh. He doesn't even have the money to return to his family home. While searching for work, Allen is offered a job as the private tutor for a duke's daughter. It sounds suspicious, but surely she can't be more trouble than that \"albatross\". Just as he lets his guard down, he finds himself face-to-face with a girl completely unable to use magic?! What exactly is blocking her ability to use magic? Allen's unconventional lesson that defies common sense gently illuminates the girl's future.",
+    "youtubePlaylistId": "PLwLSw1_eDZl3r1YgdkdwcNuC9zljIi7B_"
+  },
+  {
     "name": "Basilisk: The Ouka Ninja Scrolls",
     "slug": "basilisk-the-ouka-ninja-scrolls",
     "thumbnail": {
-      "fileId": "68da5c6bb22fc56b9dc16b38",
-      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68da5c6bb22fc56b9dc16b38_nx99569-BqPSH9otSLzO.jpeg",
+      "fileId": "68de58eadf6d3f10b21d17a6",
+      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68de58eadf6d3f10b21d17a6_nx99569-BqPSH9otSLzO.jpeg",
       "alt": null
     },
     "youtubePlaylistId": "PLxSscENEp7Jj8y0y9f_nJBbG1LXyFHxMH"
@@ -259,18 +270,5 @@
     "releaseDate": "2025-07-05T00:00:00.000Z",
     "youtubePlaylistId": "PLwLSw1_eDZl0JGogKG0UuK0rHBHlk5lQC",
     "trailerYoutubeVideoId": "LwtkssSq9hk"
-  },
-  {
-    "name": "Private Tutor to the Duke's Daughter",
-    "slug": "private-tutor-to-the-duke-s-daughter",
-    "thumbnail": {
-      "fileId": "68841f1eb40fea867ec7c372",
-      "url": "https://cdn.prod.website-files.com/67ffcb957624b4dbf08ad066/68841f1eb40fea867ec7c372_bx116864-sB3nVf2p96qf.jpeg",
-      "alt": null
-    },
-    "releaseDate": "2025-07-05T00:00:00.000Z",
-    "description": "Allen failed his court sorcerer exam. The world is harsh. He doesn't even have the money to return to his family home. While searching for work, Allen is offered a job as the private tutor for a duke's daughter. It sounds suspicious, but surely she can't be more trouble than that \"albatross\". Just as he lets his guard down, he finds himself face-to-face with a girl completely unable to use magic?! What exactly is blocking her ability to use magic? Allen's unconventional lesson that defies common sense gently illuminates the girl's future.",
-    "youtubePlaylistId": "PLwLSw1_eDZl3r1YgdkdwcNuC9zljIi7B_",
-    "trailerYoutubeVideoId": "BRfh8dpXzsU"
   }
 ]
