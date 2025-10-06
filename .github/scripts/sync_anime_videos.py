@@ -91,6 +91,9 @@ def fetch_youtube_playlist_items(playlist_id):
         next_page_token = yt_playlist_items.get('nextPageToken')
         if not next_page_token:
             break
+
+        # Add delay to avoid possible problems with the API.
+        time.sleep(0.5)  
     return all_items
 
 
@@ -142,17 +145,31 @@ def fetch_all_items(collection_url, headers):
 
 
 def add_anime_videos_collection_item(video_data):
-    response = requests.post(
-        ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL,
-        headers=WEBFLOW_API_HEADERS,
-        json=video_data
-    )
+    response = safe_post(ANIME_VIDEOS_CREATE_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS, video_data)
     if not response.ok:
         print("Error adding video to collection:", response.status_code, response.text)
         return None
 
     new_item = response.json()
     return new_item.get("id")
+
+
+def safe_post(url, headers, json_data, retries=10):
+    """
+    Send a POST request safely with basic retry logic and rate-limit handling.
+    """
+    for attempt in range(retries):
+        response = requests.post(url, headers=headers, json=json_data)
+        if response.status_code == 429:  # rate limited
+            retry_after = int(response.headers.get("Retry-After", 5))
+            print(f"Rate limit hit, waiting {retry_after}s...")
+            time.sleep(retry_after)
+            continue
+        if response.ok:
+            return response
+        print(f"Error {response.status_code}: {response.text}")
+        time.sleep(1)
+    return response  # last response (could be error)
 
 
 def publish_anime_videos(item_ids):

@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from datetime import datetime, timezone
 import unicodedata
 import re
+import time
 
 # Set this secret in GitHub.
 WEBFLOW_API_SITE_TOKEN = os.environ["WEBFLOW_API_SITE_TOKEN"]
@@ -127,7 +128,7 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
             }
         }
 
-        response = requests.post(ANIMES_CREATE_COLLECTION_ITEMS_URL, headers=WEBFLOW_API_HEADERS, json=data)
+        response = safe_post(ANIMES_CREATE_COLLECTION_ITEMS_URL, WEBFLOW_API_HEADERS, data)
         new_animes_collection_id = None
         if response.ok:
             resp_json = response.json()
@@ -189,7 +190,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
     # Send them all at once
     url = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
     try:
-        response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={"items": video_data_list})
+        response = safe_post(url, WEBFLOW_API_HEADERS, {"items": video_data_list})
         if response.ok:
             resp_json = response.json()
             new_ids = [item["id"] for item in resp_json.get("items", [])]
@@ -233,6 +234,9 @@ def fetch_all_playlist_videos(yt, playlist_id):
         if not next_page_token:
             break
 
+        # Add delay to avoid possible problems with the API.
+        time.sleep(0.5)  
+
     # ----------------------------
     # Fetch video details in batches of 50
     # ----------------------------
@@ -258,17 +262,38 @@ def fetch_all_playlist_videos(yt, playlist_id):
             video["playlistPosition"] = video_positions.get(vid)
             all_videos.append(video)
 
+        # Add delay to avoid possible problems with the API.
+        time.sleep(0.5)  
+
     # Sort results by playlist position to guarantee correct order
     all_videos.sort(key=lambda v: v.get("playlistPosition", float("inf")))
 
     return {"items": all_videos}
 
 
+def safe_post(url, headers, json_data, retries=10):
+    """
+    Send a POST request safely with basic retry logic and rate-limit handling.
+    """
+    for attempt in range(retries):
+        response = requests.post(url, headers=headers, json=json_data)
+        if response.status_code == 429:  # rate limited
+            retry_after = int(response.headers.get("Retry-After", 5))
+            print(f"Rate limit hit, waiting {retry_after}s...")
+            time.sleep(retry_after)
+            continue
+        if response.ok:
+            return response
+        print(f"Error {response.status_code}: {response.text}")
+        time.sleep(1)
+    return response  # last response (could be error)
+
+
 def publish_items(collection_id, item_ids):
     if not item_ids:
         return
     url = f"https://api.webflow.com/v2/collections/{collection_id}/items/publish"
-    response = requests.post(url, headers=WEBFLOW_API_HEADERS, json={"itemIds": item_ids})
+    response = safe_post(url, WEBFLOW_API_HEADERS, {"itemIds": item_ids})
     if response.ok:
         print(f"Published {len(item_ids)} items in collection {collection_id}")
     else:
