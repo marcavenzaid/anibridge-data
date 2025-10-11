@@ -46,6 +46,7 @@ def sync_anime_videos():
         if playlist_id:
             # Fetch all YouTube videos.
             yt_videos = fetch_playlist_videos(playlist_id)
+            print(yt_videos)
 
             # Get existing video IDs for this anime to avoid duplicates.
             existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
