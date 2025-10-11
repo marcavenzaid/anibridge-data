@@ -22,6 +22,8 @@ WEBFLOW_API_HEADERS = {
     "Content-Type": "application/json"
 }
 
+YT_API_KEY = os.environ['YOUTUBE_API_KEY']
+
 # Authenticate Google Sheets.
 CREDS_JSON = os.environ['GOOGLE_SERVICE_ACCOUNT_JSON']
 CREDS_DICT = json.loads(CREDS_JSON)
@@ -108,12 +110,12 @@ def process():
 
 def create_animes_collection_items(title, playlist_id, thumb_url, idx):
     try:
-        yt = build('youtube', 'v3', developerKey=os.environ['YOUTUBE_API_KEY'])
+        yt = build('youtube', 'v3', developerKey=YT_API_KEY)
         playlist = yt.playlists().list(
             part='contentDetails,id,localizations,snippet,status',
             id=playlist_id
         ).execute()
-        playlist_videos = fetch_all_playlist_videos(yt, playlist_id)
+        playlist_videos = fetch_playlist_videos(yt, playlist_id)
         description = playlist['items'][0]['snippet'].get('description', '') if playlist.get('items') else ''
 
         # No need to include slug, Webflow will auto-generate it.
@@ -205,7 +207,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
         return []
 
 
-def fetch_all_playlist_videos(yt, playlist_id):
+def fetch_playlist_videos(yt, playlist_id):
     all_video_ids = []             # Store all video IDs
     video_positions = {}           # Map videoId -> position
     next_page_token = None

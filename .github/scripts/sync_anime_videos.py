@@ -40,18 +40,18 @@ def sync_anime_videos():
         videos_by_anime.setdefault(anime_id, []).append(item)
 
     anime_videos_to_publish = []  # collect all new items to publish
-    for anime in all_existing_animes[:5]:
+    for anime in all_existing_animes:
         playlist_id = anime['fieldData'].get('youtube-playlist-id')
 
         if playlist_id:
             # Fetch all YouTube videos.
-            yt_videos = fetch_youtube_playlist_items(playlist_id)
+            yt_videos = fetch_playlist_videos(playlist_id)
 
             # Get existing video IDs for this anime to avoid duplicates.
             existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
 
             # Loop through YouTube videos and add missing ones.
-            for video in yt_videos:
+            for video in yt_videos.get('items', []):
                 video_id = video['contentDetails']['videoId']
                 if video_id not in existing_video_ids:
                     print(f"{video['snippet']['title']}: Not existing video_id: {video_id}")
@@ -76,25 +76,71 @@ def sync_anime_videos():
         publish_anime_videos(anime_videos_to_publish)
 
 
-def fetch_youtube_playlist_items(playlist_id):
+def fetch_playlist_videos(playlist_id):
     yt = build('youtube', 'v3', developerKey=YT_API_KEY)
-    all_items = []
+    all_video_ids = []             # Store all video IDs
+    video_positions = {}           # Map videoId -> position
     next_page_token = None
+
+    # ----------------------------
+    # Get all video IDs + positions
+    # ----------------------------
     while True:
-        yt_playlist_items = yt.playlistItems().list(
+        request = yt.playlistItems().list(
             part='snippet,contentDetails',
             playlistId=playlist_id,
             maxResults=50,
             pageToken=next_page_token
-        ).execute()
-        all_items.extend(yt_playlist_items.get('items', []))
-        next_page_token = yt_playlist_items.get('nextPageToken')
+        )
+        response = request.execute()
+
+        for item in response.get("items", []):
+            video_id = item["contentDetails"]["videoId"]
+            position = item["snippet"]["position"]
+            
+            all_video_ids.append(video_id)
+            video_positions[video_id] = position  # Save position
+
+        # Pagination handling
+        next_page_token = response.get("nextPageToken")
         if not next_page_token:
             break
 
         # Add delay to avoid possible problems with the API.
         time.sleep(0.5)  
-    return all_items
+
+    # ----------------------------
+    # Fetch video details in batches of 50
+    # ----------------------------
+    all_videos = []
+    for i in range(0, len(all_video_ids), 50):
+        batch_ids = all_video_ids[i:i+50]
+
+        request = yt.videos().list(
+            part="snippet,contentDetails",
+            id=",".join(batch_ids),
+            hl="en"
+        )
+        response = request.execute()
+
+        for video in response.get("items", []):
+            # Skip privated/deleted videos (no snippet = no metadata)
+            if "snippet" not in video:
+                continue 
+            
+            vid = video["id"]
+
+            # Merge position into video details
+            video["playlistPosition"] = video_positions.get(vid)
+            all_videos.append(video)
+
+        # Add delay to avoid possible problems with the API.
+        time.sleep(0.5)  
+
+    # Sort results by playlist position to guarantee correct order
+    all_videos.sort(key=lambda v: v.get("playlistPosition", float("inf")))
+        
+    return {"items": all_videos}
 
 
 def fetch_all_animes():
