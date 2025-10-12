@@ -164,6 +164,9 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
             video_url = f"https://www.youtube.com/watch?v={video_id}"
 
             video_title = localized_snippet.get('title', snippet['title'])
+
+            playlist_position = video['playlistPosition']
+
             published_at = snippet['publishedAt']
 
             # Parse published date
@@ -174,6 +177,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
                 "video_title": video_title,
                 "video_url": video_url,
                 "published_at": dt,
+                "playlist_position": playlist_position,
             })
 
         except Exception as e:
@@ -184,12 +188,12 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
     # ----------------------------
     # 2. Sort by published date ascending, if published date is same, use playlist position
     # ----------------------------
-    parsed_videos.sort(key=lambda x: (x["published_at"], x["playlistPosition"]))
+    parsed_videos.sort(key=lambda x: (x["published_at"], x["playlist_position"]))
+
+    print(parsed_videos)
 
     if not parsed_videos:
         return []
-
-    print(parsed_videos)
 
     # ----------------------------
     # 3. Create Webflow-ready items with new episode order
