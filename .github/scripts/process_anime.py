@@ -150,46 +150,67 @@ def create_animes_collection_items(title, playlist_id, thumb_url, idx):
 
 def create_anime_videos_collection_items(item_id, playlist_videos, title, playlist_id, thumb_url):
     video_data_list = []
+    parsed_videos = []
 
-    # Gather all video items first.
+    # ----------------------------
+    # 1. Gather and parse video info first
+    # ----------------------------
     for video in playlist_videos.get('items', []):
         try:
             snippet = video['snippet']
-            localized_snippet = snippet.get('localized')
+            localized_snippet = snippet.get('localized', {})
 
             video_id = video['id']
             video_url = f"https://www.youtube.com/watch?v={video_id}"
 
-            video_title = localized_snippet.get('title', snippet['title'])
-            episode_position = video['playlistPosition'] + 1
+            video_title = localized_snippet.get('title', snippet.get('title', 'Untitled'))
             published_at = snippet['publishedAt']
 
-            # Format published date to "YYYY-MM-DDTHH:mm:ssZ"
+            # Parse published date
             dt = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
-            published_at_utc = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-            # Collect item data.
-            video_data_list.append({
-                "isArchived": False,
-                "isDraft": False,
-                "fieldData": {
-                    "name": video_title,
-                    "youtube-video-id": video_id,
-                    "youtube-video": video_url,
-                    "anime-title-3": item_id,
-                    "episode-order": episode_position,
-                    "youtube-video-publish-date": published_at_utc
-                }
+            parsed_videos.append({
+                "video_id": video_id,
+                "video_title": video_title,
+                "video_url": video_url,
+                "published_at": dt,
             })
+
         except Exception as e:
-            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME, 
-                           f"Error preparing video {video.get('contentDetails', {}).get('videoId', 'unknown')}: {e}"])
+            issues.append([title, playlist_id, thumb_url, CURRENT_DATETIME,
+                           f"Error preparing video {video.get('id', 'unknown')}: {e}"])
             continue
 
-    if not video_data_list:
+    # ----------------------------
+    # 2. Sort by published date ascending, if published date is same, use playlist position
+    # ----------------------------
+    parsed_videos.sort(key=lambda x: (x["published_at"], x["playlistPosition"]))
+
+    if not parsed_videos:
         return []
 
-    # Send them all at once
+    # ----------------------------
+    # 3. Create Webflow-ready items with new episode order
+    # ----------------------------
+    for idx, v in enumerate(parsed_videos, start=1):
+        published_at_utc = v["published_at"].strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        video_data_list.append({
+            "isArchived": False,
+            "isDraft": False,
+            "fieldData": {
+                "name": v["video_title"],
+                "youtube-video-id": v["video_id"],
+                "youtube-video": v["video_url"],
+                "anime-title-3": item_id,
+                "episode-order": idx,  # Now based on publish date
+                "youtube-video-publish-date": published_at_utc
+            }
+        })
+
+    # ----------------------------
+    # 4. Send them all at once to Webflow
+    # ----------------------------
     url = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
     try:
         response = safe_post(url, WEBFLOW_API_HEADERS, {"items": video_data_list})
