@@ -163,7 +163,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
             video_id = video['id']
             video_url = f"https://www.youtube.com/watch?v={video_id}"
 
-            video_title = localized_snippet.get('title', snippet.get('title', 'Untitled'))
+            video_title = localized_snippet.get('title', snippet['title'])
             published_at = snippet['publishedAt']
 
             # Parse published date
@@ -188,6 +188,8 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
 
     if not parsed_videos:
         return []
+
+    print(parsed_videos)
 
     # ----------------------------
     # 3. Create Webflow-ready items with new episode order
