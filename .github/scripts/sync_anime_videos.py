@@ -48,7 +48,7 @@ def sync_anime_videos():
             continue
 
         # ----------------------------
-        # 1. Fetch all YouTube videos.
+        # Fetch all YouTube videos.
         # ----------------------------
         yt_videos = fetch_playlist_videos(playlist_id)
         yt_items = yt_videos.get('items', [])
@@ -56,26 +56,36 @@ def sync_anime_videos():
             continue
 
         # ----------------------------
-        # 2. Sort by publish date ascending, if published date is same, use playlist position
+        # Sort by publish date ascending, if published date is same, use playlist position
         # ----------------------------
         try:
-            dt = datetime.strptime(v['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-            yt_items.sort(key=lambda v: (dt, v['playlistPosition']))
+            yt_items.sort(key=lambda v: (
+                datetime.strptime(v['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ"), 
+                v['playlistPosition'])       
+            )
         except Exception as e:
             print(f"Failed to sort videos for playlist {playlist_id}: {e}")
             continue
 
-        # ----------------------------
-        # 3. Get existing video IDs for this anime to avoid duplicates
-        # ----------------------------
-        existing_video_ids = {
-            v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])
-        }
+        # Get existing video IDs for this anime to avoid duplicates
+        existing_videos = videos_by_anime.get(anime['id'], [])
+        existing_video_ids = {v['fieldData']['youtube-video-id'] for v in existing_videos}
+
+        # Find the current highest episode number (default to 0 if none)
+        max_existing_order = 0
+        for v in existing_videos:
+            try:
+                order = int(v['fieldData'].get('episode-order', 0))
+                if order > max_existing_order:
+                    max_existing_order = order
+            except (TypeError, ValueError):
+                continue
+        next_episode_number = max_existing_order + 1
 
         # ----------------------------
-        # 4. Loop through sorted videos and assign new episode order
+        # Loop through sorted videos and assign new episode order
         # ----------------------------
-        for episode_number, video in enumerate(yt_items, start=1):
+        for episode_number, video in enumerate(yt_items, start=next_episode_number):
             video_id = video['id']
             if video_id in existing_video_ids:
                 continue  # skip duplicates
@@ -103,11 +113,10 @@ def sync_anime_videos():
                 anime_videos_to_publish.append(anime_video_id)
 
     # ----------------------------
-    # 5. Batch publish all new items
+    # Batch publish all new items
     # ----------------------------
     if anime_videos_to_publish:
         publish_anime_videos(anime_videos_to_publish)
-
 
 
 def fetch_playlist_videos(playlist_id):

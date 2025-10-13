@@ -153,7 +153,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
     parsed_videos = []
 
     # ----------------------------
-    # 1. Gather and parse video info first
+    # Gather and parse video info
     # ----------------------------
     for video in playlist_videos.get('items', []):
         try:
@@ -185,16 +185,14 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
                            f"Error preparing video {video.get('id', 'unknown')}: {e}"])
             continue
 
-    # ----------------------------
-    # 2. Sort by published date ascending, if published date is same, use playlist position
-    # ----------------------------
+    # Sort by published date ascending, if published date is same, use playlist position
     parsed_videos.sort(key=lambda x: (x["published_at"], x["playlist_position"]))
 
     if not parsed_videos:
         return []
 
     # ----------------------------
-    # 3. Create Webflow-ready items with new episode order
+    # Create Webflow-ready items with new episode order
     # ----------------------------
     for idx, v in enumerate(parsed_videos, start=1):
         published_at_utc = v["published_at"].strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -213,7 +211,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
         })
 
     # ----------------------------
-    # 4. Send them all at once to Webflow
+    # Send them all at once to Webflow
     # ----------------------------
     url = f"https://api.webflow.com/v2/collections/{ANIME_VIDEOS_COLLECTION_ID}/items"
     try:
