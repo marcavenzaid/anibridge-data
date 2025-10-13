@@ -4,6 +4,7 @@ import requests
 import time
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from datetime import datetime, timezone
 
 WEBFLOW_API_SITE_TOKEN = os.environ["WEBFLOW_API_SITE_TOKEN"]
 ANIMES_COLLECTION_ID = "67fffeccd6749ed6ce46961b"
@@ -24,7 +25,6 @@ YT_API_KEY = os.environ['YOUTUBE_API_KEY']
 
 
 def sync_anime_videos():
-
     # Fetch all existing animes in Webflow.
     all_existing_animes = fetch_all_animes()
     print(f"all_existing_animes: {len(all_existing_animes)} total")
@@ -40,40 +40,74 @@ def sync_anime_videos():
         videos_by_anime.setdefault(anime_id, []).append(item)
 
     anime_videos_to_publish = []  # collect all new items to publish
+
     for anime in all_existing_animes:
         playlist_id = anime['fieldData'].get('youtube-playlist-id')
 
-        if playlist_id:
-            # Fetch all YouTube videos.
-            yt_videos = fetch_playlist_videos(playlist_id)
+        if not playlist_id:
+            continue
 
-            # Get existing video IDs for this anime to avoid duplicates.
-            existing_video_ids = {v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])}
+        # ----------------------------
+        # 1. Fetch all YouTube videos.
+        # ----------------------------
+        yt_videos = fetch_playlist_videos(playlist_id)
+        yt_items = yt_videos.get('items', [])
+        if not yt_items:
+            continue
 
-            # Loop through YouTube videos and add missing ones.
-            for video in yt_videos.get('items', []):
-                video_id = video['id']
-                if video_id not in existing_video_ids:
-                    print(f"{video['snippet']['title']}: Not existing video_id: {video_id}")
-                    # No need to include slug, Webflow will auto-generate it.
-                    video_data = {
-                        "isArchived": False,
-                        "isDraft": False,
-                        "fieldData": {
-                            "name": video['snippet']['title'],
-                            "youtube-video-id": video_id,
-                            "youtube-video": f"https://www.youtube.com/watch?v={video_id}",
-                            "anime-title-3": anime['id'],
-                            "episode-order": video['playlistPosition'] + 1,
-                            "youtube-video-publish-date": video['snippet']['publishedAt']
-                        }
-                    }
-                    anime_video_id = add_anime_videos_collection_item(video_data)
-                    if anime_video_id:
-                        anime_videos_to_publish.append(anime_video_id)
-    # Batch publish all new items
+        # ----------------------------
+        # 2. Sort by publish date ascending, if published date is same, use playlist position
+        # ----------------------------
+        try:
+            dt = datetime.strptime(v['snippet']['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+            yt_items.sort(key=lambda v: (dt, v['playlistPosition']))
+        except Exception as e:
+            print(f"Failed to sort videos for playlist {playlist_id}: {e}")
+            continue
+
+        # ----------------------------
+        # 3. Get existing video IDs for this anime to avoid duplicates
+        # ----------------------------
+        existing_video_ids = {
+            v['fieldData']['youtube-video-id'] for v in videos_by_anime.get(anime['id'], [])
+        }
+
+        # ----------------------------
+        # 4. Loop through sorted videos and assign new episode order
+        # ----------------------------
+        for episode_number, video in enumerate(yt_items, start=1):
+            video_id = video['id']
+            if video_id in existing_video_ids:
+                continue  # skip duplicates
+
+            video_title = video['snippet']['title']
+
+            print(f"{video_title}: Not existing video_id: {video_id}")
+
+            video_data = {
+                "isArchived": False,
+                "isDraft": False,
+                "fieldData": {
+                    "name": video_title,
+                    "youtube-video-id": video_id,
+                    "youtube-video": f"https://www.youtube.com/watch?v={video_id}",
+                    "anime-title-3": anime['id'],
+                    "episode-order": episode_number,  # ordered by publish date
+                    "youtube-video-publish-date": video['snippet']['publishedAt']
+                }
+            }
+
+            # Add to Webflow
+            anime_video_id = add_anime_videos_collection_item(video_data)
+            if anime_video_id:
+                anime_videos_to_publish.append(anime_video_id)
+
+    # ----------------------------
+    # 5. Batch publish all new items
+    # ----------------------------
     if anime_videos_to_publish:
         publish_anime_videos(anime_videos_to_publish)
+
 
 
 def fetch_playlist_videos(playlist_id):

@@ -190,8 +190,6 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
     # ----------------------------
     parsed_videos.sort(key=lambda x: (x["published_at"], x["playlist_position"]))
 
-    print(parsed_videos)
-
     if not parsed_videos:
         return []
 
