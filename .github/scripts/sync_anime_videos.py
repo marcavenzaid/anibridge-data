@@ -71,25 +71,23 @@ def sync_anime_videos():
         existing_videos = videos_by_anime.get(anime['id'], [])
         existing_video_ids = {v['fieldData']['youtube-video-id'] for v in existing_videos}
 
-        print("existing_videos:", existing_videos)
-
+        ### This is not needed because the loop will start from the first video 
+        ### and increment the episode number based on the order in the playlist.
         # Find the current highest episode number (default to 0 if none)
-        max_existing_order = 0
-        for v in existing_videos:
-            try:
-                order = int(v['fieldData'].get('episode-order', 0))
-                if order > max_existing_order:
-                    max_existing_order = order
-            except (TypeError, ValueError):
-                continue
-        next_episode_number = max_existing_order + 1
-
-        print("next_episode_number:", next_episode_number)
+        # max_existing_order = 0
+        # for v in existing_videos:
+        #     try:
+        #         order = int(v['fieldData'].get('episode-order', 0))
+        #         if order > max_existing_order:
+        #             max_existing_order = order
+        #     except (TypeError, ValueError):
+        #         continue
+        # next_episode_number = max_existing_order + 1
 
         # ----------------------------
         # Loop through sorted videos and assign new episode order
         # ----------------------------
-        for episode_number, video in enumerate(yt_items, start=next_episode_number):
+        for episode_number, video in enumerate(yt_items, start=1):
             video_id = video['id']
             if video_id in existing_video_ids:
                 continue  # skip duplicates
