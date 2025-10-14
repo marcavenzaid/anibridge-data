@@ -51,7 +51,7 @@ def sync_anime_videos():
         # Fetch all YouTube videos.
         # ----------------------------
         yt_videos = fetch_playlist_videos(playlist_id)
-        yt_items = yt_videos.get('items', [])
+        yt_items = yt_videos.get('items')
         if not yt_items:
             continue
 
@@ -90,15 +90,18 @@ def sync_anime_videos():
             if video_id in existing_video_ids:
                 continue  # skip duplicates
 
-            video_title = video['snippet']['title']
+            snippet = video['snippet']
+            localized_snippet = snippet.get('localized', {})
+            
+            localized_video_title = localized_snippet.get('title', snippet['title'])
 
-            print(f"{video_title}: Not existing video_id: {video_id}")
+            print(f"{localized_video_title}: Not existing video_id: {video_id}")
 
             video_data = {
                 "isArchived": False,
                 "isDraft": False,
                 "fieldData": {
-                    "name": video_title,
+                    "name": localized_video_title,
                     "youtube-video-id": video_id,
                     "youtube-video": f"https://www.youtube.com/watch?v={video_id}",
                     "anime-title-3": anime['id'],
@@ -167,15 +170,16 @@ def fetch_playlist_videos(playlist_id):
         response = request.execute()
 
         for video in response.get("items", []):
-            snippet = video.get("snippet")
+            snippet = video["snippet"]
+            localized_snippet = snippet.get('localized', {})
 
             # Skip if no snippet or marked as private/deleted
             if not snippet:
                 continue
 
-            title = snippet.get("title", "").lower()
+            localized_video_title = localized_snippet.get('title', snippet['title']).lower()
 
-            if title in ("private video", "deleted video", ""):
+            if localized_video_title in ("private video", "deleted video", ""):
                 continue
 
             vid = video["id"]
