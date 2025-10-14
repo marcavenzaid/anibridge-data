@@ -71,6 +71,8 @@ def sync_anime_videos():
         existing_videos = videos_by_anime.get(anime['id'], [])
         existing_video_ids = {v['fieldData']['youtube-video-id'] for v in existing_videos}
 
+        print("existing_videos:", existing_videos)
+
         # Find the current highest episode number (default to 0 if none)
         max_existing_order = 0
         for v in existing_videos:
@@ -81,6 +83,8 @@ def sync_anime_videos():
             except (TypeError, ValueError):
                 continue
         next_episode_number = max_existing_order + 1
+
+        print("next_episode_number:", next_episode_number)
 
         # ----------------------------
         # Loop through sorted videos and assign new episode order

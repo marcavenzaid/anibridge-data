@@ -163,7 +163,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
             video_id = video['id']
             video_url = f"https://www.youtube.com/watch?v={video_id}"
 
-            video_title = localized_snippet.get('title', snippet['title'])
+            localized_video_title = localized_snippet.get('title', snippet['title'])
 
             playlist_position = video['playlistPosition']
 
@@ -174,7 +174,7 @@ def create_anime_videos_collection_items(item_id, playlist_videos, title, playli
 
             parsed_videos.append({
                 "video_id": video_id,
-                "video_title": video_title,
+                "video_title": localized_video_title,
                 "video_url": video_url,
                 "published_at": dt,
                 "playlist_position": playlist_position,
