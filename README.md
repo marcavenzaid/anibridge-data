@@ -40,7 +40,7 @@ async function loadProducts() {
 ```
 
 ### Export Webflow Animes to JSON Workflow
-This workflow auto automatically exports the Animes Collection data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBeidge website.
+This workflow auto automatically exports the Animes Collection data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
 
 #### Live JSON URL
 The latest export is always available here: [animes.json](https://marcavenzaid.github.io/anibridge-data/animes.json)
