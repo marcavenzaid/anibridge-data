@@ -31,6 +31,7 @@ The latest export is always available here: [affiliate_products.json](https://ma
 
 #### Usage
 On the AniBridge frontend (or anywhere else), you can fetch the JSON like this:
+
 ```javascript
 async function loadProducts() {
   const res = await fetch("https://marcavenzaid.github.io/anibridge-data/affiliate_products.json");
@@ -56,6 +57,7 @@ The latest export is always available here: [animes.json](https://marcavenzaid.g
 
 #### Usage
 On the AniBridge frontend (or anywhere else), you can fetch the JSON like this:
+
 ```javascript
 async function loadProducts() {
   const res = await fetch("https://marcavenzaid.github.io/anibridge-data/animes.json");
@@ -96,8 +98,11 @@ This workflow checks for new videos added to the YouTube playlist of the animes 
 ### Other
 #### Workflow Immortality
 Scheduled workflows are disabled automatically after 60 days of repository inactivity. This action prevents that from happening.
+
 `action.yml` is in `.github\actions\workflow-immortality\action.yml`
+
 The job is added at the end of each workflow.
+
 ```yml
 jobs:
   ...
