@@ -23,10 +23,10 @@ The latest export is always available here: [affiliate_products.json](https://ma
 #### How It Works
 - A **GitHub Actions workflow** runs once every 24 hours, at 00:00 UTC (or manually).
 - The workflow:
-	1. Fetch CMS items from the AniBridge Webflow CMS via the Webflow API.
-	2. Extract the required fields (`name`, `slug`, `price`, etc).
-	3. Save the fields into `affiliate_products.json`.
-	4. Commit the JSON back to this repo.
+  1. Fetch CMS items from the AniBridge Webflow CMS via the Webflow API.
+  2. Extract the required fields (`name`, `slug`, `price`, etc).
+  3. Save the fields into `affiliate_products.json`.
+  4. Commit the JSON back to this repo.
 - GitHub Pages serves the JSON publicly at the URL above.
 
 #### Usage
@@ -48,10 +48,10 @@ The latest export is always available here: [animes.json](https://marcavenzaid.g
 #### How It Works
 - A **GitHub Actions workflow** runs once every 24 hours, at 01:00 UTC (or manually).
 - The workflow:
-	1. Fetch CMS items from the AniBridge Webflow CMS via the Webflow API.
-	2. Extract the required fields (`name`, `slug`, `thumbnail`, etc).
-	3. Save the fields into `animes.json`.
-	4. Commit the JSON back to this repo.
+  1. Fetch CMS items from the AniBridge Webflow CMS via the Webflow API.
+  2. Extract the required fields (`name`, `slug`, `thumbnail`, etc).
+  3. Save the fields into `animes.json`.
+  4. Commit the JSON back to this repo.
 - GitHub Pages serves the JSON publicly at the URL above.
 
 #### Usage
@@ -74,12 +74,12 @@ anibridge-add-anime-sheet: https://docs.google.com/spreadsheets/d/1C5sDE4ntv_-Jl
 #### How It Works
 - A **GitHub Actions workflow** runs every day at 02:00 UTC (or manually).
 - The workflow:
-	1. Fetch the entries in the anibridge-add-anime-sheet.
-	2. Check for duplicates in the "to add" and "added" sheets, if there are, then move those entries to the "has issues" sheet.
-	3. Fetch the details of the youtube playlist and the details of the videos in that playlist.
-	4. Create Animes Collection items and the corresponding Anime Videos Collection items.
-	5. If there are issues encountered, then move those entries to the "has issues" sheet.
-	6. Publish the new Collection items in Webflow.
+  1. Fetch the entries in the anibridge-add-anime-sheet.
+  2. Check for duplicates in the "to add" and "added" sheets, if there are, then move those entries to the "has issues" sheet.
+  3. Fetch the details of the youtube playlist and the details of the videos in that playlist.
+  4. Create Animes Collection items and the corresponding Anime Videos Collection items.
+  5. If there are issues encountered, then move those entries to the "has issues" sheet.
+  6. Publish the new Collection items in Webflow.
 
 ### Webflow Sync Anime Videos Workflow
 This workflow checks for new videos added to the YouTube playlist of the animes that are in the AniBridge CMS, if there are, then it will create Anime Videos CMS Collection items for those videos. This is for ongoing anime series so that the new episodes gets added to AniBridge automatically.
@@ -87,11 +87,11 @@ This workflow checks for new videos added to the YouTube playlist of the animes 
 #### How It Works
 - A **GitHub Actions workflow** runs every day at 03:00 UTC (or manually).
 - The workflow:
-	1. Fetch the items from Animes Collection.
-	2. Check the playlist of each of the items if there is a new video.
-	3. If there is a new video, fetch the details of the new video.
-	4. Create the Anime Videos Collection items.
-	5. Publish the new Collection items in Webflow.
+  1. Fetch the items from Animes Collection.
+  2. Check the playlist of each of the items if there is a new video.
+  3. If there is a new video, fetch the details of the new video.
+  4. Create the Anime Videos Collection items.
+  5. Publish the new Collection items in Webflow.
 
 ### Other
 #### Workflow Immortality
@@ -100,14 +100,14 @@ Scheduled workflows are disabled automatically after 60 days of repository inact
 The job is added at the end of each workflow.
 ```yml
 jobs:
-	...
-	
-	workflow-immortality:
-		name: Keep workflow alive
-		if: github.event_name == 'schedule'
-		runs-on: ubuntu-latest
-		permissions:
-			actions: write
-		steps:
-			- uses: ./.github/actions/workflow-immortality
+  ...
+
+  workflow-immortality:
+    name: Keep workflow alive
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: ./.github/actions/workflow-immortality
 ```
