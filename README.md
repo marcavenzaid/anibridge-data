@@ -2,12 +2,12 @@
 This repository contains Workflows to automate some processes for AniBridge.
 
 ## Workflows
-|Workflow name                 | Schedule                    |
-|------------------------------|-----------------------------|
-|Export Webflow CMS to JSON    | runs every day at 00:00 UTC |
-|Export Webflow Animes to JSON | runs every day at 01:00 UTC |
-|Webflow Add Anime             | runs every day at 02:00 UTC |
-|Webflow Sync Anime Videos     | runs every day at 03:00 UTC |
+|Workflow name                 | Schedule                     |
+|------------------------------|------------------------------|
+|Export Webflow CMS to JSON    | Runs every day at 00:00 UTC  |
+|Export Webflow Animes to JSON | Runs every day at 01:00 UTC  |
+|Webflow Add Anime             | Runs every day at 02:00 UTC  |
+|Webflow Sync Anime Videos     | Runs every day at 03:00 UTC  |
 
 ### Export Webflow CMS to JSON Workflow
 This workflow automatically exports the affiliate products data from the AniBridge Webflow CMS and makes it available as a JSON file for use in the AniBridge website.
@@ -92,3 +92,22 @@ This workflow checks for new videos added to the YouTube playlist of the animes 
 	3. If there is a new video, fetch the details of the new video.
 	4. Create the Anime Videos Collection items.
 	5. Publish the new Collection items in Webflow.
+
+### Other
+#### Workflow Immortality
+Scheduled workflows are disabled automatically after 60 days of repository inactivity. This action prevents that from happening.
+`action.yml` is in `.github\actions\workflow-immortality\action.yml`
+The job is added at the end of each workflow.
+```yml
+jobs:
+	...
+	
+	workflow-immortality:
+		name: Keep workflow alive
+		if: github.event_name == 'schedule'
+		runs-on: ubuntu-latest
+		permissions:
+			actions: write
+		steps:
+			- uses: ./.github/actions/workflow-immortality
+```
